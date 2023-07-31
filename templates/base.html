@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{% static 'css/nav.css' %}"/>
+    <script src="{% static 'js/navbar.js' %}" async defer></script>
     <title>Responsive Animated Navbar</title>
 </head>
 <body>
@@ -19,8 +20,8 @@
             <li><a href="#">Link2</a></li>
             <li><a href="#">Link3</a></li>
             <li><a href="#">Link4</a></li>
-            <li><button class="login-button" href="#">Login</button></li>
-            <li><button class="join-button" href="#">Join</button></li>
+            <li><button class="login-button">Logowanie</button></li>
+            <li><button class="join-button" href="#">Rejestracja</button></li>
         </ul>
     </nav>
     {% block content %}
