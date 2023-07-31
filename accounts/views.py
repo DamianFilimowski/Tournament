@@ -2,8 +2,10 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.views import View
+from django.views.generic import ListView, DetailView
 
 from accounts.forms import AddUserModelForm
+from accounts.models import CustomUser
 
 
 # Create your views here.
@@ -50,3 +52,11 @@ class LogoutView(View):
     def get(self, request):
         logout(request)
         return redirect('accounts:login')
+
+class UserListView(ListView):
+    model = CustomUser
+    template_name = 'accounts/user_list.html'
+
+class UserDetailView(DetailView):
+    model = CustomUser
+    template_name = 'accounts/user_detail.html'
