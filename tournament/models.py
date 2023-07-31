@@ -7,7 +7,7 @@ from accounts.models import CustomUser
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
-    short_name = models.CharField(max_length=100)
+    short_name = models.CharField(max_length=8)
     captain = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, related_name='team_captain')
     players = models.ManyToManyField(CustomUser, related_name='player', blank=True)
 

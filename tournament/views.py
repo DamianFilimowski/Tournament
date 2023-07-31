@@ -39,10 +39,14 @@ class TeamUpdateView(UserPassesTestMixin, UpdateView):
         return self.request.user == team.captain
 
     def get_success_url(self):
-        return reverse_lazy('tournament:team_detail', kwargs={'pk':self.object.id})
+        return reverse_lazy('tournament:team_detail', kwargs={'pk': self.object.id})
 
 
-class TeamDeleteView(DeleteView):
+class TeamDeleteView(UserPassesTestMixin, DeleteView):
     model = Team
-    success_url = reverse_lazy('tournament:team_list')
+    success_url = reverse_lazy('accounts:profile')
+
+    def test_func(self):
+        team = self.get_object()
+        return self.request.user == team.captain
 
