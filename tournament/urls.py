@@ -9,4 +9,9 @@ urlpatterns = [
     path('teams/<int:pk>/', TeamDetailView.as_view(), name='team_detail'),
     path('teams/<int:pk>/update', TeamUpdateView.as_view(), name='team_update'),
     path('teams/<int:pk>/delete', TeamDeleteView.as_view(), name='team_delete'),
+    path('', TournamentListView.as_view(), name='tournament_list'),
+    path('create/', TournamentCreateView.as_view(), name='tournament_create'),
+    path('<int:pk>/', TournamentDetailView.as_view(), name='tournament_detail'),
+    path('<int:pk>/update', TournamentUpdateView.as_view(), name='tournament_update'),
+    path('<int:pk>/delete', TournamentDeleteView.as_view(), name='tournament_delete'),
 ]

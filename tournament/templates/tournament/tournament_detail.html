@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+ <p>Nazwa Turnieju: {{ tournament.name }}</p>
+      {% if user == tournament.tournament_admin %}
+   <a href="{% url 'tournament:tournament_update' tournament.id %}">Edytuj</a>
+      <a href="{% url 'tournament:tournament_delete' tournament.id %}">Usuń</a>
+  {% endif %}
+{% endblock %}
