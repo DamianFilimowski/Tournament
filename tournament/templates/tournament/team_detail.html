@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p>Pełna nazwa drużyny: {{ team.name }}</p>
+    <p>Krótka nazwa drużyny: {{ team.short_name }}</p>
+    <p>Kapitan: {{ team.captain }}</p>
+  {% if user == team.captain %}
+   <a href="{% url 'tournament:team_update' team.id %}">Edytuj</a>
+      <a href="{% url 'tournament:team_delete' team.id %}">Usuń</a>
+  {% endif %}
+
+
+{% endblock %}

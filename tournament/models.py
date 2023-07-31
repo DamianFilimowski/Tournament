@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.urls import reverse
 from accounts.models import CustomUser
 
 
@@ -13,3 +13,6 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_detail_url(self):
+        return reverse('tournament:team_detail', kwargs={'pk': self.id})
