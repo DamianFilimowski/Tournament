@@ -55,7 +55,7 @@ class Match(models.Model):
         if self.result is not None:
             return f"{self.team1.name} - {self.team2.name} {self.team1_score}:{self.team2_score}"
         else:
-            return f"{self.team1.name} vs. {self.team2.name} - {self.date}"
+            return f"{self.team1.name} vs. {self.team2.name} - {self.match_date}"
 
     class Meta:
         unique_together = ['order', 'tournament']
@@ -81,3 +81,25 @@ class Scorers(models.Model):
 
     def __str__(self):
         return f'Strzelec bramki: {self.scorer} z {self.minute} minuty, w meczu {self.match}'
+
+
+class GroupStage(models.Model):
+    name = models.CharField(max_length=100)
+    order = models.IntegerField()
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    teams = models.ManyToManyField(Team)
+    promoted_teams = models.ManyToManyField(Team, related_name='promoted_teams')
+    matches = models.ManyToManyField(Match, related_name='matches')
+    matches_finished = models.ManyToManyField(Match)
+
+    def __str__(self):
+        return f"{self.tournament} - {self.name}"
+
+
+class Playoff(models.Model):
+
+    tournament = models.OneToOneField(Tournament, on_delete=models.CASCADE)
+    matches = models.ManyToManyField(Match)
+
+    def __str__(self):
+        return f"Play-off dla {self.tournament}"

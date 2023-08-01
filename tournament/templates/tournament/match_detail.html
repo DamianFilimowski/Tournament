@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
     <p>Turniej {{ match.tournament.name}}</p>
-    <p>{{ match.team1 }} vs {{ match.team2 }}</p>
+    <p><a href="{% url "tournament:team_detail" match.team1.id %}">{{ match.team1 }}</a> vs
+        <a href="{% url "tournament:team_detail" match.team2.id %}">{{ match.team2 }}</a></p>
     <p>Wynik {% if match.team1_score and match.team2_score %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
         Mecz nie został jeszcze rozegrany
         {% if user == match.tournament.tournament_admin %}
