@@ -140,3 +140,15 @@ class MatchUpdateScorersView(UserPassesTestMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.kwargs['pk']})
+
+
+class MatchDeleteScorersView(UserPassesTestMixin, DeleteView):
+    model = Scorers
+
+    def test_func(self):
+        scorer = self.get_object()
+        return self.request.user == scorer.match.tournament.tournament_admin
+
+    def get_success_url(self):
+        scorer = self.get_object()
+        return reverse_lazy('tournament:match_detail', kwargs={'pk': scorer.match.id})

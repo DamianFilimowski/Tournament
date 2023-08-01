@@ -324,3 +324,24 @@ def test_match_update_scorers_creator(matches, user):
     assert response.status_code == 302
     assert Scorers.objects.get(**data)
     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+
+@pytest.mark.django_db
+def test_scorers_delete_not_creator(scorers, user_not_creator):
+    scorer = scorers[0]
+    url = reverse('tournament:match_delete_scorers', kwargs={'pk': scorer.id})
+    browser.force_login(user_not_creator)
+    response = browser.post(url)
+    assert response.status_code == 403
+    assert Scorers.objects.get(match=scorer.match, scorer=scorer.scorer, minute=scorer.minute)
+
+
+@pytest.mark.django_db
+def test_scorers_delete_creator(scorers, user):
+    scorer = scorers[0]
+    url = reverse('tournament:match_delete_scorers', kwargs={'pk': scorer.id})
+    browser.force_login(user)
+    response = browser.post(url)
+    assert response.status_code == 302
+    with pytest.raises(ObjectDoesNotExist):
+        Scorers.objects.get(match=scorer.match, scorer=scorer.scorer, minute=scorer.minute)
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk':scorer.match.id}))

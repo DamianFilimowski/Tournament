@@ -10,7 +10,11 @@
     <p>strzelcy bramek:</p>
     <ul>
     {% for goal in match.scorers_set.all %}
-    	<li>{{ goal.scorer.username }} - {{ goal.minute }}min</li>
+    	<li>{{ goal.scorer.username }} - {{ goal.minute }}min
+        {% if user == match.tournament.tournament_admin %}
+            <a href="{% url 'tournament:match_delete_scorers' goal.id %}">Usuń Strzelca</a>
+        {% endif %}
+        </li>
     {% endfor %}
     {% if user == match.tournament.tournament_admin %}
         <a href="{% url 'tournament:match_update_scorers' match.id %}">Dodaj strzelca</a>{% endif %}

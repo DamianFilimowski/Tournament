@@ -41,3 +41,12 @@ def matches(tournaments, teams):
     for x in range(5):
         lst.append(Match.objects.create(tournament=tournament, order=x, phase=x, team1=team1, team2=team2))
     return lst
+
+
+@pytest.fixture
+def scorers(matches, user):
+    match = matches[0]
+    lst = []
+    for x in range(5):
+        lst.append(Scorers.objects.create(match=match, scorer=user, minute=x))
+    return lst

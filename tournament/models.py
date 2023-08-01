@@ -78,3 +78,6 @@ class Scorers(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     scorer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     minute = models.IntegerField()
+
+    def __str__(self):
+        return f'Strzelec bramki: {self.scorer} z {self.minute} minuty, w meczu {self.match}'
