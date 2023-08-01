@@ -92,3 +92,51 @@ class TournamentDeleteView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         tournament = self.get_object()
         return self.request.user == tournament.tournament_admin
+
+
+class MatchDetailView(DetailView):
+    model = Match
+    template_name = 'tournament/match_detail.html'
+
+
+class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
+    model = Match
+    template_name = 'tournament/form.html'
+    fields = ['team1_score', 'team2_score']
+
+    def test_func(self):
+        match = self.get_object()
+        return self.request.user == match.tournament.tournament_admin
+
+    def get_success_url(self):
+        return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
+
+
+class MatchUpdateDateView(UserPassesTestMixin, UpdateView):
+    model = Match
+    template_name = 'tournament/form.html'
+    fields = ['match_date']
+
+    def test_func(self):
+        match = self.get_object()
+        return self.request.user == match.tournament.tournament_admin
+
+    def get_success_url(self):
+        return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
+
+
+class MatchUpdateScorersView(UserPassesTestMixin, CreateView):
+    model = Scorers
+    template_name = 'tournament/form.html'
+    fields = ['scorer', 'minute']
+
+    def test_func(self):
+        match = Match.objects.get(id=self.kwargs['pk'])
+        return self.request.user == match.tournament.tournament_admin
+
+    def form_valid(self, form):
+        form.instance.match = Match.objects.get(id=self.kwargs['pk'])
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('tournament:match_detail', kwargs={'pk': self.kwargs['pk']})

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p>Turniej {{ match.tournament.name}}</p>
+    <p>{{ match.team1 }} vs {{ match.team2 }}</p>
+    <p>Wynik {% if match.result %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
+        Mecz nie został jeszcze rozegrany
+        {% if user == match.tournament.tournament_admin %}
+   <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
+  {% endif %}{% endif %}
+    strzelcy bramek:
+    <ul>
+    {% for goal in match.scorers_set.all %}
+    	<li>{{ goal.scorer.username }} - {{ goal.minute }}min</li>
+    {% endfor %}
+    {% if user == match.tournament.tournament_admin %}
+        <a href="{% url 'tournament:match_update_scorers' match.id %}">Dodaj strzelca</a>{% endif %}
+    </ul>
+    <p>Data meczu : {{ match.match_date }} {% if user == match.tournament.tournament_admin %}
+        {% if not match.match_date %}
+        <a href="{% url 'tournament:match_update_date' match.id %}">Ustaw date</a>
+        {% else %}
+        <a href="{% url 'tournament:match_update_date' match.id %}">Zmien Datę</a>
+    {% endif %} </p>
+    {% endif %}
+
+
+{% endblock %}
