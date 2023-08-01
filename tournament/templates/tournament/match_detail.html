@@ -2,12 +2,12 @@
 {% block content %}
     <p>Turniej {{ match.tournament.name}}</p>
     <p>{{ match.team1 }} vs {{ match.team2 }}</p>
-    <p>Wynik {% if match.result %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
+    <p>Wynik {% if match.team1_score and match.team2_score %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
         Mecz nie został jeszcze rozegrany
         {% if user == match.tournament.tournament_admin %}
    <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
   {% endif %}{% endif %}
-    strzelcy bramek:
+    <p>strzelcy bramek:</p>
     <ul>
     {% for goal in match.scorers_set.all %}
     	<li>{{ goal.scorer.username }} - {{ goal.minute }}min</li>

@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from accounts.models import CustomUser
@@ -61,6 +62,16 @@ class Match(models.Model):
 
     def get_detail_url(self):
         return reverse('tournament:match_detail', kwargs={'pk': self.id})
+
+    def clean(self):
+        if self.team1 == self.team2:
+            raise ValidationError("Team 1 and Team 2 cannot be the same.")
+        if self.team1_score > self.team2_score:
+            self.result = 1
+        elif self.team1_score < self.team2_score:
+            self.result = 2
+        else:
+            self.result = 0
 
 
 class Scorers(models.Model):

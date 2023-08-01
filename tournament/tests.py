@@ -233,3 +233,94 @@ def test_tournament_delete_creator_post(tournaments, user):
         Tournament.objects.get(name=tournament.name, max_teams_amount=tournament.max_teams_amount,
                                tournament_admin=tournament.tournament_admin)
     assert response.url.startswith(reverse('accounts:profile'))
+
+
+@pytest.mark.django_db
+def test_match_detail(matches):
+    match = matches[0]
+    url = reverse('tournament:match_detail', kwargs={'pk': match.id})
+    response = browser.get(url)
+    assert response.status_code == 200
+    assert response.context['object'] == match
+
+
+@pytest.mark.django_db
+def test_match_update_result_not_creator(matches, user_not_creator):
+    match = matches[0]
+    url = reverse('tournament:match_update_result', kwargs={'pk': match.id})
+    browser.force_login(user_not_creator)
+    data = {
+        'team1_score': 1,
+        'team2_score': 2
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_match_update_result_creator(matches, user):
+    match = matches[0]
+    url = reverse('tournament:match_update_result', kwargs={'pk': match.id})
+    browser.force_login(user)
+    data = {
+        'team1_score': 1,
+        'team2_score': 2
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    match = Match.objects.get(id=match.id)
+    assert match.result == 2
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+
+
+@pytest.mark.django_db
+def test_match_update_date_not_creator(matches, user_not_creator):
+    match = matches[0]
+    url = reverse('tournament:match_update_date', kwargs={'pk': match.id})
+    browser.force_login(user_not_creator)
+    data = {
+        'match_date': '2023-05-22 20:00:00'
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_match_update_date_creator(matches, user):
+    match = matches[0]
+    url = reverse('tournament:match_update_date', kwargs={'pk': match.id})
+    browser.force_login(user)
+    data = {
+        'match_date': '2023-05-22 20:00:00'
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    assert Match.objects.get(**data)
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+
+@pytest.mark.django_db
+def test_match_update_scorers_not_creator(matches, user_not_creator):
+    match = matches[0]
+    url = reverse('tournament:match_update_scorers', kwargs={'pk': match.id})
+    browser.force_login(user_not_creator)
+    data = {
+        'scorer': user_not_creator.id,
+        'minute': 5
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_match_update_scorers_creator(matches, user):
+    match = matches[0]
+    url = reverse('tournament:match_update_scorers', kwargs={'pk': match.id})
+    browser.force_login(user)
+    data = {
+        'scorer': user.id,
+        'minute': 5
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    assert Scorers.objects.get(**data)
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
