@@ -298,6 +298,7 @@ def test_match_update_date_creator(matches, user):
     assert Match.objects.get(**data)
     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
 
+
 @pytest.mark.django_db
 def test_match_update_scorers_not_creator(matches, user_not_creator):
     match = matches[0]
@@ -324,6 +325,7 @@ def test_match_update_scorers_creator(matches, user):
     assert response.status_code == 302
     assert Scorers.objects.get(**data)
     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+
 
 @pytest.mark.django_db
 def test_scorers_delete_not_creator(scorers, user_not_creator):
@@ -366,6 +368,7 @@ def test_tournament_create_groups_playoff_phases_drawn(tournaments, user):
     response = browser.get(url)
     assert response.status_code == 403
 
+
 @pytest.mark.django_db
 def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
     tournament = tournaments[0]
@@ -379,6 +382,7 @@ def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
     assert tournament.match_set.count() == 16
     assert tournament.playoff.matches.count() == 4
     assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
 
 @pytest.mark.django_db
 def test_tournament_create_groups_playoff_seven_teams(tournaments, teams, user):
