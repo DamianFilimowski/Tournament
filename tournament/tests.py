@@ -403,3 +403,10 @@ def test_group_stage_detail(groups):
     response = browser.get(url)
     assert response.status_code == 200
     assert response.context['object'] == group
+
+@pytest.mark.django_db
+def test_playoff_detail(playoff):
+    url = reverse('tournament:playoff_detail', kwargs={'pk': playoff.id})
+    response = browser.get(url)
+    assert response.status_code == 200
+    assert response.context['object'] == playoff

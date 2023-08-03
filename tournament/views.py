@@ -199,3 +199,8 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
 class GroupStageDetailView(DetailView):
     model = GroupStage
     template_name = 'tournament/groupstage_detail.html'
+
+
+class PlayoffDetailView(DetailView):
+    model = Playoff
+    template_name = 'tournament/playoff_detail.html'

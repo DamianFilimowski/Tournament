@@ -58,3 +58,10 @@ def groups(tournaments):
     for x in range(4):
         lst.append(GroupStage.objects.create(tournament=tournament, order=x, name=x))
     return lst
+
+
+@pytest.fixture
+def playoff(tournaments):
+    tournament = tournaments[0]
+    playoff = Playoff.objects.create(tournament=tournament)
+    return playoff

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+   <h1>{{ playoff }}</h1>
+    Mecze:
+    <ul>
+    {% for match in playoff.matches.all %}
+    	<li><a href="{% url 'tournament:match_detail' match.id %}">
+            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+    {% endfor %}
+
+    </ul>
+
+{% endblock %}

@@ -20,6 +20,10 @@
           {% endfor %}
               </ul>
           {% endif %}
+          {% if tournament.playoff %}
+              <a href="{% url 'tournament:playoff_detail' tournament.playoff.id %}">Playoff</a>
+
+          {% endif %}
 
   {% endif %}
 {% endblock %}
