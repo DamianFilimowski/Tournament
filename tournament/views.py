@@ -223,11 +223,19 @@ def create_playoff_matches(num_matches, tournament):
     return matches
 
 
-class TournamentCreateGroupsPlayoff(View):
+class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
+    def test_func(self):
+        tournament = Tournament.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == tournament.tournament_admin and not tournament.phases_drawn
+
     def get(self, request, pk):
         tournament = Tournament.objects.get(pk=pk)
         teams = list(tournament.teams.all())
         total_teams = len(teams)
+
+        if total_teams < 8:
+            message = 'Aby rozpocząć turniej z fazą grupową musi byc przynajmniej 8 drużyn'
+            return render(request,'tournament/message.html', {'message':message})
 
         if is_power_of_two(total_teams):
             number_playoff_matches = get_number_playoff_matches(total_teams)

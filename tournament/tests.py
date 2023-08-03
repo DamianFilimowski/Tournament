@@ -344,4 +344,38 @@ def test_scorers_delete_creator(scorers, user):
     assert response.status_code == 302
     with pytest.raises(ObjectDoesNotExist):
         Scorers.objects.get(match=scorer.match, scorer=scorer.scorer, minute=scorer.minute)
-    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk':scorer.match.id}))
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': scorer.match.id}))
+
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_not_creator(tournaments, user_not_creator):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_phases_drawn(tournaments, user):
+    tournament = tournaments[0]
+    tournament.phases_drawn = True
+    tournament.save()
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:8])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 302
+    assert tournament.groupstage_set.count() == 2
+    assert tournament.match_set.count() == 16
+    assert tournament.playoff.matches.count() == 4
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
