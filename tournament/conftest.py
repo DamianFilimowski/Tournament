@@ -35,8 +35,8 @@ def tournaments(user):
 @pytest.fixture
 def matches(tournaments, teams):
     tournament = tournaments[0]
-    team1= teams[0]
-    team2= teams[1]
+    team1 = teams[0]
+    team2 = teams[1]
     lst = []
     for x in range(5):
         lst.append(Match.objects.create(tournament=tournament, order=x, phase=x, team1=team1, team2=team2))

@@ -58,12 +58,6 @@ class Match(models.Model):
     def clean(self):
         if self.team1 == self.team2:
             raise ValidationError("Team 1 and Team 2 cannot be the same.")
-        if self.team1_score > self.team2_score:
-            self.result = 1
-        elif self.team1_score < self.team2_score:
-            self.result = 2
-        else:
-            self.result = 0
 
 
 class Scorers(models.Model):

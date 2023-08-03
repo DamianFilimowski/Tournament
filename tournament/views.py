@@ -112,6 +112,15 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
         match = self.get_object()
         return self.request.user == match.tournament.tournament_admin
 
+    def form_valid(self, form):
+        if self.object.team1_score > self.object.team2_score:
+            self.object.result = 1
+        elif self.object.team1_score < self.object.team2_score:
+            self.object.result = 2
+        else:
+            self.object.result = 0
+        return super().form_valid(form)
+
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
 
