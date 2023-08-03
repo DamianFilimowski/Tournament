@@ -10,5 +10,16 @@
       {% if user == tournament.tournament_admin %}
    <a href="{% url 'tournament:tournament_update' tournament.id %}">Edytuj</a>
       <a href="{% url 'tournament:tournament_delete' tournament.id %}">Usuń</a>
+          {% if tournament.groupstage_set.exists %}
+          	<h3>Grupy:</h3>
+          <ul>
+          {% for group in tournament.groupstage_set.all %}
+          	<li>
+            <a href="{% url 'tournament:groupstage_detail' group.id %}">{{ group.name }}</a>
+            </li>
+          {% endfor %}
+              </ul>
+          {% endif %}
+
   {% endif %}
 {% endblock %}

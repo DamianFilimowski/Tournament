@@ -81,6 +81,9 @@ class GroupStage(models.Model):
     def __str__(self):
         return f"{self.tournament} - {self.name}"
 
+    def get_detail_url(self):
+        return reverse('tournament:groupstage_detail', kwargs={'pk': self.id})
+
 
 class Playoff(models.Model):
 

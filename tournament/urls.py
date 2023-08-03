@@ -21,6 +21,7 @@ urlpatterns = [
     path('match/<int:pk>/update_date/', MatchUpdateDateView.as_view(), name='match_update_date'),
     path('match/<int:pk>/update_scorers/', MatchUpdateScorersView.as_view(), name='match_update_scorers'),
     path('scorer_delete/<int:pk>/', MatchDeleteScorersView.as_view(), name='match_delete_scorers'),
+    path('group/<int:pk>/', GroupStageDetailView.as_view(), name='groupstage_detail')
 
 
 ]

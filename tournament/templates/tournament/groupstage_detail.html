@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+   <h1>{{ groupstage.name }}</h1>
+    Drużyny:
+<ul>
+{% for team in groupstage.teams.all %}
+    <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></li>
+{% endfor %}
+
+</ul>
+    Mecze:
+    <ul>
+    {% for match in groupstage.matches.all %}
+    	<li><a href="{% url 'tournament:match_detail' match.id %}">
+            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+    {% endfor %}
+
+    </ul>
+
+{% endblock %}

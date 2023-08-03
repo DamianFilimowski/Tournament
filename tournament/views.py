@@ -1,4 +1,3 @@
-import math
 import random
 
 from django.shortcuts import render, redirect
@@ -179,11 +178,11 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
 
         if total_teams < 8:
             message = 'Aby rozpocząć turniej z fazą grupową musi byc przynajmniej 8 drużyn'
-            return render(request,'tournament/message.html', {'message':message})
+            return render(request, 'tournament/message.html', {'message': message})
 
         elif is_power_of_two(total_teams):
             number_playoff_matches = get_number_playoff_matches(total_teams)
-            groups = create_group_stages(total_teams//4, tournament)
+            groups = create_group_stages(total_teams // 4, tournament)
             random.shuffle(teams)
             groups = add_teams_to_groups(groups, teams)
             for group in groups:
@@ -197,7 +196,6 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             return redirect('tournament:tournament_detail', pk)
 
 
-
-
-
-
+class GroupStageDetailView(DetailView):
+    model = GroupStage
+    template_name = 'tournament/groupstage_detail.html'
