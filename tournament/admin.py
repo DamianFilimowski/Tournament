@@ -6,3 +6,6 @@ from .models import *
 admin.site.register(Team)
 admin.site.register(Tournament)
 admin.site.register(Match)
+admin.site.register(Scorers)
+admin.site.register(GroupStage)
+admin.site.register(Playoff)

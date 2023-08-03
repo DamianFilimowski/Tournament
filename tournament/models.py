@@ -43,22 +43,14 @@ class Match(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     order = models.IntegerField()
     phase = models.IntegerField()
-    team1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team1_matches')
-    team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team2_matches')
-    team1_score = models.PositiveIntegerField(default=0)
-    team2_score = models.PositiveIntegerField(default=0)
+    team1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team1_matches', null=True, blank=True)
+    team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team2_matches', null=True, blank=True)
+    team1_score = models.PositiveIntegerField(default=None, null=True, blank=True)
+    team2_score = models.PositiveIntegerField(default=None, null=True, blank=True)
     result = models.IntegerField(choices=RESULT_CHOICES, null=True, default=None)
     match_date = models.DateTimeField(null=True, blank=True)
     is_group = models.BooleanField(default=False)
 
-    def __str__(self):
-        if self.result is not None:
-            return f"{self.team1.name} - {self.team2.name} {self.team1_score}:{self.team2_score}"
-        else:
-            return f"{self.team1.name} vs. {self.team2.name} - {self.match_date}"
-
-    class Meta:
-        unique_together = ['order', 'tournament']
 
     def get_detail_url(self):
         return reverse('tournament:match_detail', kwargs={'pk': self.id})
