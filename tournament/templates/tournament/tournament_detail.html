@@ -10,6 +10,9 @@
       {% if user == tournament.tournament_admin %}
    <a href="{% url 'tournament:tournament_update' tournament.id %}">Edytuj</a>
       <a href="{% url 'tournament:tournament_delete' tournament.id %}">Usuń</a>
+          {% if not tournament.phases_drawn %}
+          	<a href="{% url 'tournament:tournament_start' tournament.id %}">Rozpocznij Turniej</a>
+          {% endif %} 
           {% if tournament.groupstage_set.exists %}
           	<h3>Grupy:</h3>
           <ul>

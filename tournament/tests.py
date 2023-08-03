@@ -410,3 +410,12 @@ def test_playoff_detail(playoff):
     response = browser.get(url)
     assert response.status_code == 200
     assert response.context['object'] == playoff
+
+
+@pytest.mark.django_db
+def test_tournament_start(tournaments):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_start', kwargs={'pk': tournament.id})
+    response = browser.get(url)
+    assert response.status_code == 200
+    assert response.context['pk'] == tournament.id

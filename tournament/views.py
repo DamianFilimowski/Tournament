@@ -204,3 +204,13 @@ class GroupStageDetailView(DetailView):
 class PlayoffDetailView(DetailView):
     model = Playoff
     template_name = 'tournament/playoff_detail.html'
+
+
+class TournamentStart(View):
+    def test_func(self):
+        tournament = Tournament.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == tournament.tournament_admin and not tournament.phases_drawn
+
+    def get(self, request, pk):
+        return render(request, 'tournament/tournament_start.html', {'pk': pk})
+
