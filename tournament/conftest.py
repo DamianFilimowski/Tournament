@@ -50,3 +50,11 @@ def scorers(matches, user):
     for x in range(5):
         lst.append(Scorers.objects.create(match=match, scorer=user, minute=x))
     return lst
+
+@pytest.fixture
+def groups(tournaments):
+    tournament = tournaments[0]
+    lst = []
+    for x in range(4):
+        lst.append(GroupStage.objects.create(tournament=tournament, order=x, name=x))
+    return lst
