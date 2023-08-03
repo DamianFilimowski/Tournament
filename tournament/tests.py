@@ -379,3 +379,14 @@ def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
     assert tournament.match_set.count() == 16
     assert tournament.playoff.matches.count() == 4
     assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_seven_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:7])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 200
+    assert response.context['message'] == 'Aby rozpocząć turniej z fazą grupową musi byc przynajmniej 8 drużyn'

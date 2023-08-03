@@ -237,7 +237,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             message = 'Aby rozpocząć turniej z fazą grupową musi byc przynajmniej 8 drużyn'
             return render(request,'tournament/message.html', {'message':message})
 
-        if is_power_of_two(total_teams):
+        elif is_power_of_two(total_teams):
             number_playoff_matches = get_number_playoff_matches(total_teams)
             groups = create_group_stages(total_teams//4, tournament)
             random.shuffle(teams)
