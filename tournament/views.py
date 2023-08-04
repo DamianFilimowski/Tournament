@@ -112,12 +112,11 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
         return self.request.user == match.tournament.tournament_admin
 
     def form_valid(self, form):
-        if self.object.team1_score > self.object.team2_score:
-            self.object.result = 1
-        elif self.object.team1_score < self.object.team2_score:
-            self.object.result = 2
-        else:
-            self.object.result = 0
+        set_result(self)
+        if self.object.is_group:
+            group_stage = GroupStage.objects.get(matches=self.object)
+            from_matches_to_finished(self, group_stage)
+
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -199,6 +198,14 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
 class GroupStageDetailView(DetailView):
     model = GroupStage
     template_name = 'tournament/groupstage_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        group_stage = self.object
+        matches = group_stage.matches_finished.all()
+        group_data = get_group_data(matches)
+        context['group_data'] = group_data
+        return context
 
 
 class PlayoffDetailView(DetailView):

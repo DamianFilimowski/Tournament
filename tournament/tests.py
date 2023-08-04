@@ -258,7 +258,8 @@ def test_match_update_result_not_creator(matches, user_not_creator):
 
 
 @pytest.mark.django_db
-def test_match_update_result_creator(matches, user):
+def test_match_update_result_creator(matches, user, groups):
+    group_stage = groups[0]
     match = matches[0]
     url = reverse('tournament:match_update_result', kwargs={'pk': match.id})
     browser.force_login(user)
@@ -270,6 +271,7 @@ def test_match_update_result_creator(matches, user):
     assert response.status_code == 302
     match = Match.objects.get(id=match.id)
     assert match.result == 2
+    assert match in group_stage.matches_finished.all()
     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
 
 

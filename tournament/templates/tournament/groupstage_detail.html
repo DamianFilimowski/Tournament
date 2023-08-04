@@ -1,14 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
    <h1>{{ groupstage.name }}</h1>
-    Drużyny:
-<ul>
-{% for team in groupstage.teams.all %}
-    <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></li>
-{% endfor %}
+<table>
+  <thead>
+    <tr>
+      <th>Drużyna</th>
+      <th>Punkty</th>
+      <th>Gole zdobyte</th>
+      <th>Gole stracone</th>
+      <th>Różnica bramek</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for team, item in group_data %}
+      <tr>
+        <td>{{ team.name }}</td>
+        <td>{{ item.points }}</td>
+        <td>{{ item.goals_scored }}</td>
+        <td>{{ item.goals_conceded }}</td>
+        <td>{{ item.goal_difference }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
-</ul>
-    Mecze:
+
+
+
+
+
+    Nierozegrane Mecze:
     <ul>
     {% for match in groupstage.matches.all %}
     	<li><a href="{% url 'tournament:match_detail' match.id %}">
@@ -16,5 +37,16 @@
     {% endfor %}
 
     </ul>
+    {% if groupstage.matches_finished.exists %}
+    Rozegrane Mecze
+    <ul>
+    {% for match in groupstage.matches_finished.all %}
+    	<li><a href="{% url 'tournament:match_detail' match.id %}">
+            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+    {% endfor %}
+
+    </ul>
+    {% endif %}
+
 
 {% endblock %}

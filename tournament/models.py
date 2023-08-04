@@ -39,6 +39,7 @@ class Match(models.Model):
         (1, 'Team 1 Wins'),
         (0, 'Draw'),
         (2, 'Team 2 Wins'),
+        (3, 'Mecz nierozegrany'),
     )
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     order = models.IntegerField()
@@ -47,7 +48,7 @@ class Match(models.Model):
     team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team2_matches', null=True, blank=True)
     team1_score = models.PositiveIntegerField(default=None, null=True, blank=True)
     team2_score = models.PositiveIntegerField(default=None, null=True, blank=True)
-    result = models.IntegerField(choices=RESULT_CHOICES, null=True, default=None)
+    result = models.IntegerField(choices=RESULT_CHOICES, null=True, default=3)
     match_date = models.DateTimeField(null=True, blank=True)
     is_group = models.BooleanField(default=False)
 
