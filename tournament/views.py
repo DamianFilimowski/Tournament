@@ -238,7 +238,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
 
         elif is_power_of_two(total_teams):
             number_playoff_matches = get_number_playoff_matches(total_teams)
-            groups = create_group_stages(total_teams // 4, tournament)
+            groups = create_group_stages(number_playoff_matches // 2, tournament)
             random.shuffle(teams)
             groups = add_teams_to_groups(groups, teams)
             for group in groups:
@@ -250,6 +250,29 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             tournament.phases_drawn = True
             tournament.save()
             return redirect('tournament:tournament_detail', pk)
+
+        else:
+            number_playoff_matches = get_number_playoff_matches(total_teams)
+            groups = create_group_stages(number_playoff_matches//2, tournament)
+            random.shuffle(teams)
+            groups = add_teams_to_groups(groups, teams)
+            list_groups = list(groups)
+            for i, team in enumerate(teams):
+                group_index = i % len(list_groups)
+                groups[group_index].teams.add(team)
+            for group in groups:
+                create_group_matches(group)
+            playoff = Playoff.objects.create(tournament=tournament)
+            playoff_matches = create_playoff_matches(number_playoff_matches, tournament)
+            for match in playoff_matches:
+                playoff.matches.add(match)
+            tournament.phases_drawn = True
+            tournament.save()
+            return redirect('tournament:tournament_detail', pk)
+
+
+
+
 
 
 class GroupStageDetailView(DetailView):
