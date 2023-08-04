@@ -1,5 +1,6 @@
 import random
 
+from django.db.models import Max
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -140,6 +141,39 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
                     match1.save()
                     match2.team2 = team2
                     match2.save()
+        else:
+            playoff = Playoff.objects.get(tournament=self.object.tournament)
+            max_phase = playoff.matches.aggregate(Max('phase'))['phase__max']
+            if self.object.team1_score > self.object.team2_score:
+                winner = self.object.team1
+                loser = self.object.team2
+            else:
+                winner = self.object.team2
+                loser = self.object.team1
+            if self.object.phase == max_phase - 1:
+                matches = playoff.matches.filter(phase=max_phase)
+                final = matches.get(order=1)
+                mini_final = matches.get(order=2)
+                if self.object.order == 1:
+                    final.team1 = winner
+                    final.save()
+                    mini_final.team1 = loser
+                    mini_final.save()
+                else:
+                    final.team2 = winner
+                    final.save()
+                    mini_final.team2 = loser
+                    mini_final.save()
+            else:
+                matches = playoff.matches.filter(phase=self.object.phase + 1)
+                if self.object.order % 2 == 0:
+                    match = matches.get(order=self.object.order // 2)
+                    match.team2 = winner
+                    match.save()
+                else:
+                    match = matches.get(order=(self.object.order + 1) // 2)
+                    match.team1 = winner
+                    match.save()
         return response
 
     def get_success_url(self):
