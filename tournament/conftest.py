@@ -59,7 +59,7 @@ def groups(tournaments, matches):
     lst = []
     for x in range(4):
         group_stage = GroupStage.objects.create(tournament=tournament, order=x, name=x)
-        group_stage.matches.add(matches[x])
+        group_stage.matches.add(matches[x], matches[x+1])
         lst.append(group_stage)
     return lst
 

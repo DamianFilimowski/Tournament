@@ -112,12 +112,35 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
         return self.request.user == match.tournament.tournament_admin
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         set_result(self)
         if self.object.is_group:
             group_stage = GroupStage.objects.get(matches=self.object)
             from_matches_to_finished(self, group_stage)
-
-        return super().form_valid(form)
+            if not group_stage.matches.all():
+                finished_matches = group_stage.matches_finished.all()
+                group_data = get_group_data(finished_matches)
+                team1 = group_data[0][0]
+                team2 = group_data[1][0]
+                group_stage.promoted_teams.add(team1, team2)
+                order = group_stage.order
+                playoff = Playoff.objects.get(tournament=group_stage.tournament)
+                matches = playoff.matches.filter(phase=1)
+                if order % 2 == 0:
+                    match1 = matches.get(order=order - 1)
+                    match2 = matches.get(order=order)
+                    match1.team2 = team2
+                    match1.save()
+                    match2.team1 = team1
+                    match2.save()
+                else:
+                    match1 = matches.get(order=order)
+                    match2 = matches.get(order=order + 1)
+                    match1.team1 = team1
+                    match1.save()
+                    match2.team2 = team2
+                    match2.save()
+        return response
 
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})

@@ -93,7 +93,9 @@ def get_group_data(matches):
         group_data[match.team2]['goals_conceded'] += match.team1_score
         group_data[match.team2]['goal_difference'] += match.team2_score - match.team1_score
     group_data = group_data.items()
-    group_data = sorted(group_data, key=lambda item: -item[1]['points'])
+    group_data = sorted(group_data, key=lambda item: (-item[1]['points'],
+                                                      -item[1]['goal_difference'],
+                                                      -item[1]['goals_scored']))
     return group_data
 
 
@@ -104,6 +106,7 @@ def set_result(self):
         self.object.result = 2
     else:
         self.object.result = 0
+    self.object.save()
 
 
 def from_matches_to_finished(self, group_stage):
