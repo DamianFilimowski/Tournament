@@ -406,6 +406,7 @@ def test_group_stage_detail(groups):
     assert response.status_code == 200
     assert response.context['object'] == group
 
+
 @pytest.mark.django_db
 def test_playoff_detail(playoff):
     url = reverse('tournament:playoff_detail', kwargs={'pk': playoff.id})
@@ -449,5 +450,36 @@ def test_tournament_create_playoff_not_creator(tournaments, teams, user_not_crea
     tournament = tournaments[0]
     url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
     browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_join_not_captain(tournaments, user_not_creator):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_join', kwargs={'pk': tournament.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_join_max_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    tournament.max_teams_amount = 9
+    teams = teams[:9]
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_join', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_join_phases_drawn(tournaments, user):
+    tournament = tournaments[0]
+    tournament.phases_drawn = True
+    url = reverse('tournament:tournament_join', kwargs={'pk': tournament.id})
+    browser.force_login(user)
     response = browser.get(url)
     assert response.status_code == 403
