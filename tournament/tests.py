@@ -442,3 +442,12 @@ def test_tournament_create_playoff_creator(tournaments, teams, user):
     assert len(playoff_none_team2) == 2
     assert response.status_code == 302
     assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_not_creator(tournaments, teams, user_not_creator):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403

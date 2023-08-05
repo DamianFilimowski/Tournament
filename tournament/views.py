@@ -308,8 +308,9 @@ class TournamentCreatePlayoff(UserPassesTestMixin, View):
                 match_playoff = playoff_matches.get(order=(match.order + 1) // 2)
                 match_playoff.team1 = match.team1
                 match_playoff.save()
+        tournament.phases_drawn = True
+        tournament.save()
         return redirect('tournament:tournament_detail', pk)
-
 
 
 class GroupStageDetailView(DetailView):
@@ -337,4 +338,25 @@ class TournamentStart(View):
 
     def get(self, request, pk):
         return render(request, 'tournament/tournament_start.html', {'pk': pk})
+
+
+class TournamentJoin(UserPassesTestMixin, View):
+    def test_func(self):
+        tournament = Tournament.objects.get(pk=self.kwargs['pk'])
+        max_teams = tournament.max_teams_amount
+        teams_number = tournament.teams.count()
+        is_captain = Team.objects.filter(captain=self.request.user).exclude(tournament=tournament)
+        return len(is_captain) > 0 and not tournament.phases_drawn and max_teams > teams_number
+
+    def get(self, request, pk):
+        tournament = Tournament.objects.get(pk=pk)
+        teams = Team.objects.filter(captain=self.request.user).exclude(tournament=tournament)
+        return render(request, 'tournament/tournament_join.html', {'teams': teams,
+                                                                   'tournament': tournament})
+
+    def post(self, request, pk):
+        team = Team.objects.get(id=request.POST.get('team_id'))
+        tournament = Tournament.objects.get(pk=pk)
+        tournament.teams.add(team)
+        return redirect('tournament:tournament_detail', pk)
 

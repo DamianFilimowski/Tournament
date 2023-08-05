@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+Wybierz drużynę którą chcesz dołączyć do turnieju {{ tournament.name }}<br>
+    {% for team in teams %}
+    	<form method="post">
+        {% csrf_token %}
+        <button type="submit" name='team_id' value="{{ team.id }}">Dołącz jako {{ team.name }}</button>
+    </form>
+    {% endfor %}
+
+{% endblock %}
