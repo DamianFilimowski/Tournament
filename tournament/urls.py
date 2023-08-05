@@ -17,6 +17,8 @@ urlpatterns = [
     path('<int:pk>/start/', TournamentStart.as_view(), name='tournament_start'),
     path('<int:pk>/start/create_groups_playoff/', TournamentCreateGroupsPlayoff.as_view(),
          name='tournament_create_groups_playoff'),
+    path('<int:pk>/start/create_playoff/', TournamentCreatePlayoff.as_view(),
+         name='tournament_create_playoff'),
     path('match/<int:pk>/', MatchDetailView.as_view(), name='match_detail'),
     path('match/<int:pk>/update_result/', MatchUpdateResultView.as_view(), name='match_update_result'),
     path('match/<int:pk>/update_date/', MatchUpdateDateView.as_view(), name='match_update_date'),

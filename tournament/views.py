@@ -271,7 +271,44 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             return redirect('tournament:tournament_detail', pk)
 
 
+class TournamentCreatePlayoff(UserPassesTestMixin, View):
+    def test_func(self):
+        tournament = Tournament.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == tournament.tournament_admin and not tournament.phases_drawn
 
+    def get(self, request, pk):
+        tournament = Tournament.objects.get(pk=pk)
+        teams = list(tournament.teams.all())
+        total_teams = len(teams)
+        num_matches = get_number_playoff_matches(total_teams) * 4
+        matches = create_playoff_matches(num_matches, tournament)
+        random.shuffle(teams)
+        playoff = Playoff.objects.create(tournament=tournament)
+        for match in matches:
+            playoff.matches.add(match)
+        matches = playoff.matches.filter(phase=1)
+        for match in matches:
+            team1 = teams.pop(0)
+            match.team1 = team1
+            match.save()
+        matches = list(matches)
+        random.shuffle(matches)
+        for i in range(0, len(teams)):
+            team2 = teams.pop(0)
+            matches[i].team2 = team2
+            matches[i].save()
+        matches = playoff.matches.filter(team2=None)
+        playoff_matches = playoff.matches.filter(phase=2)
+        for match in matches:
+            if match.order % 2 == 0:
+                match_playoff = playoff_matches.get(order=match.order // 2)
+                match_playoff.team2 = match.team1
+                match_playoff.save()
+            else:
+                match_playoff = playoff_matches.get(order=(match.order + 1) // 2)
+                match_playoff.team1 = match.team1
+                match_playoff.save()
+        return redirect('tournament:tournament_detail', pk)
 
 
 
