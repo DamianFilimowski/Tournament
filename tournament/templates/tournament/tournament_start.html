@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
  <a href="{% url 'tournament:tournament_create_groups_playoff' pk %}">Turniej z wstępną fazą i playoff</a>
+    <p><a href="{% url 'tournament:tournament_create_playoff' pk %}">Turniej z playoff</a></p>
 
 {% endblock %}

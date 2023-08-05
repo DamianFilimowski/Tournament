@@ -421,3 +421,24 @@ def test_tournament_start(tournaments):
     response = browser.get(url)
     assert response.status_code == 200
     assert response.context['pk'] == tournament.id
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_creator(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = teams[:14]
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    playoff = Playoff.objects.get(tournament=tournament)
+    playoff_none_team1 = playoff.matches.filter(team1=None, phase=1)
+    playoff_none_team2 = playoff.matches.filter(team2=None, phase=1)
+    playoff_next_phase = playoff.matches.filter(phase=2)
+    have_t1 = playoff_next_phase.filter(team1__isnull=False)
+    have_t2 = playoff_next_phase.filter(team2__isnull=False)
+    assert len(have_t1) + len(have_t2) == 2
+    assert len(playoff_none_team1) == 0
+    assert len(playoff_none_team2) == 2
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))

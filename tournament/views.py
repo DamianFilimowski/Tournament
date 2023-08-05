@@ -297,7 +297,7 @@ class TournamentCreatePlayoff(UserPassesTestMixin, View):
             team2 = teams.pop(0)
             matches[i].team2 = team2
             matches[i].save()
-        matches = playoff.matches.filter(team2=None)
+        matches = playoff.matches.filter(team2=None, phase=1)
         playoff_matches = playoff.matches.filter(phase=2)
         for match in matches:
             if match.order % 2 == 0:
