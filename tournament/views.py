@@ -25,7 +25,10 @@ class TeamCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.captain = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        self.object.players.add(self.request.user)
+
+        return response
 
 
 class TeamDetailView(DetailView):
@@ -208,6 +211,12 @@ class MatchUpdateScorersView(UserPassesTestMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.kwargs['pk']})
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        match = Match.objects.get(id=self.kwargs['pk'])
+        form.fields['scorer'].queryset = match.team1.players.all() | match.team2.players.all()
+        return form
 
 
 class MatchDeleteScorersView(UserPassesTestMixin, DeleteView):

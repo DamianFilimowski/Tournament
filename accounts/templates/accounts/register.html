@@ -1,25 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
     {{ msg }}
-  <form method="post">
+    <div class="my-form">
+    <h2 class="form-header">REJESTRACJA</h2>
+  <form  class="form-container" method="post">
     {% csrf_token %}
-    <table>
-        <thead>
-            <tr><th> nazwa </th><th>input</th><th>errors</th></tr>
-        </thead>
-        <tbody>
 
         {% for field in form %}
-        <tr>
-            <td>{{ field.name }}</td>
-            <td>{{ field }}</td>
-            <td>{% for error in field.errors %}{{ error }}{% endfor %}</td>
-        </tr>
+            <p><input type="{{ field.widget.input_type }}"
+                      name="{{ field.name }}" placeholder="{{ field.name }}"></p>
         {% endfor %}
-        <tr><td colspan="3">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</td></tr>
-        </tbody>
-    </table>
-    <input type="submit">
-    </form>
 
+
+    <input type="submit" value="Zarejestruj Się">
+    </form>
+    </div>
 {% endblock %}

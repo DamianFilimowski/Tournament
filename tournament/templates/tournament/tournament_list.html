@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <a href="{% url 'tournament:tournament_create' %}">Stwórz Turniej</a>
+    <h1>Lista Turniejów</h1><br>
 {% include 'list.html'  %}
+    <a href="{% url 'tournament:tournament_create' %}">Stwórz Turniej</a>
 {% endblock %}

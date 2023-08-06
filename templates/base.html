@@ -16,15 +16,21 @@
         </div>
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
-            <li><a href="{% url "tournament:team_list" %}">Drużyny</a></li>
             <li><a href="{% url "tournament:tournament_list" %}">Turnieje</a></li>
-            <li><a href="#">Link3</a></li>
+            <li><a href="{% url "tournament:team_list" %}">Drużyny</a></li>
             <li><a href="{% url 'accounts:user_list' %}">Użytkownicy</a></li>
-            <li><button class="login-button">Logowanie</button></li>
-            <li><button class="join-button">Rejestracja</button></li>
+            {% if user.is_authenticated %}
+                <li><button id='profile' class="login-button">Profil</button></li>
+            <li><button id='logout' class="join-button">Wyloguj Się</button></li>
+            {% else %}
+            <li><button id='login' class="login-button">Logowanie</button></li>
+            <li><button id='register' class="join-button">Rejestracja</button></li>
+            {% endif %}
         </ul>
     </nav>
+    <div class="main-content">
     {% block content %}
     {% endblock content %}
+    </div>
 </body>
 </html>

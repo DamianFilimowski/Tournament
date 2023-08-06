@@ -13,7 +13,6 @@ nav{
     display: flex;
 }
 
-/*Styling logo*/
 .logo{
     padding:1vh 1vw;
     text-align: center;
@@ -100,5 +99,112 @@ nav{
     background-color: transparent;
     border:1.5px solid #f2f5f7;
     transition: all ease-in-out 350ms;
+}
+
+.main-content {
+    width: 80%;
+    min-height: 800px;
+    margin: 5px auto;
+    background: #D8D9DA;
+    padding-top: 20px;
+}
+
+body {
+    background: #61677A;
+}
+
+.main-content a {
+    color: #068FFF;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 1s ease;
+}
+
+
+.main-content a:hover {
+    color: #0d0f10;
+    transition: color 1s ease;
+}
+
+h1 {
+    text-align: center;
+}
+
+#list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.my-form {
+  width: 400px;
+  margin: 16px auto;
+  font-size: 16px;
+}
+
+.form-header,
+.my-form p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.form-header {
+  background: #28d;
+  padding: 20px;
+  font-size: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.form-container {
+  background: #D8D9DA;
+  padding: 12px;
+}
+
+.my-form p {
+  padding: 12px;
+}
+
+.my-form input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border-width: 1px;
+  border-style: solid;
+  padding: 16px;
+  outline: 0;
+  font-family: inherit;
+  font-size: 0.95em;
+}
+
+
+.my-form input[type="text"],
+.my-form input[type="password"] {
+  background: #fff;
+  border-color: #bbb;
+  color: #555;
+}
+
+.my-form input[type="text"]:focus,
+.my-form input[type="password"]:focus {
+  border-color: #888;
+}
+
+.my-form input[type="submit"] {
+  background: #28d;
+  border-color: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.my-form input[type="submit"]:hover {
+  background: #17c;
+}
+
+.my-form input[type="submit"]:focus {
+  border-color: #05a;
 }
 

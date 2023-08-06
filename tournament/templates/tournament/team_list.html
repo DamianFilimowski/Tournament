@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-    <a href="{% url 'tournament:team_create' %}">Stwórz Drużynę</a>
+    <h1>Lista Drużyn</h1>
 {% include 'list.html'  %}
+    <a href="{% url 'tournament:team_create' %}">Stwórz Drużynę</a>
 {% endblock %}

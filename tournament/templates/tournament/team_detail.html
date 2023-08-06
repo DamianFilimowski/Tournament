@@ -7,6 +7,12 @@
    <a href="{% url 'tournament:team_update' team.id %}">Edytuj</a>
       <a href="{% url 'tournament:team_delete' team.id %}">Usuń</a>
   {% endif %}
+    Gracze:
+    <ul>
+    {% for player in object.players.all %}
+    	<li>{{ player }}</li>
+    {% endfor %}
+    </ul>
 
 
 {% endblock %}
