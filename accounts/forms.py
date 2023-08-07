@@ -24,6 +24,7 @@ class AddUserModelForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name', 'username']
+        labels = {'first_name': 'imie'}
 
     def clean(self):
         cleaned_data = super().clean()

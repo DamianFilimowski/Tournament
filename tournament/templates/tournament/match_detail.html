@@ -1,26 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
     <p>Turniej {{ match.tournament.name}}</p>
-    <p><a href="{% url "tournament:team_detail" match.team1.id %}">{{ match.team1 }}</a> vs
-        <a href="{% url "tournament:team_detail" match.team2.id %}">{{ match.team2 }}</a></p>
-    <p>Wynik {% if match.team1_score and match.team2_score %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
+    <p>
+    {% if match.team1 is not None %}
+    <a href="{% url "tournament:team_detail" match.team1.id %}">{{ match.team1 }}</a>
+        {% else %} Brak Drużyny
+    {% endif %} vs {% if match.team2 is not None %}
+        <a href="{% url "tournament:team_detail" match.team2.id %}">{{ match.team2 }}</a>
+    {% else %} Brak Drużyny {% endif %}</p>
+    <p>Wynik {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
         Mecz nie został jeszcze rozegrany
         {% if user == match.tournament.tournament_admin %}
+            <div class="my-button-container"><button class="my-button-start">
    <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
+            </button></div>
   {% endif %}{% endif %}
     <p>strzelcy bramek:</p>
-    <ul>
+    <ul id="list">
     {% for goal in match.scorers_set.all %}
-    	<li>{{ goal.scorer.username }} - {{ goal.minute }}min
+    	<li><a href="{% url 'accounts:user_detail' goal.scorer.id %}">
+            {{ goal.scorer.username }}</a> - {{ goal.minute }}min
         {% if user == match.tournament.tournament_admin %}
+            <div class="my-button-container"><button class="my-button-delete">
             <a href="{% url 'tournament:match_delete_scorers' goal.id %}">Usuń Strzelca</a>
+            </button></div>
         {% endif %}
         </li>
     {% endfor %}
     {% if user == match.tournament.tournament_admin %}
-        <a href="{% url 'tournament:match_update_scorers' match.id %}">Dodaj strzelca</a>{% endif %}
+        <div class="my-button-container"><button class="my-button-start">
+        <a href="{% url 'tournament:match_update_scorers' match.id %}">Dodaj strzelca</a>
+        </button></div>
+    {% endif %}
     </ul>
-    <p>Data meczu : {{ match.match_date }} {% if user == match.tournament.tournament_admin %}
+    <p>Data meczu : {% if match.match_date %}{{ match.match_date }}{% endif %}
+        {% if user == match.tournament.tournament_admin %}
         {% if not match.match_date %}
         <a href="{% url 'tournament:match_update_date' match.id %}">Ustaw date</a>
         {% else %}

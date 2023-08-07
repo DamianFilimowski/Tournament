@@ -2,15 +2,17 @@
 {% block content %}
     <p>Pełna nazwa drużyny: {{ team.name }}</p>
     <p>Krótka nazwa drużyny: {{ team.short_name }}</p>
-    <p>Kapitan: {{ team.captain }}</p>
+    <p>Kapitan: <a href="{% url 'accounts:user_detail' team.captain.id %}">{{ team.captain }}</a></p>
   {% if user == team.captain %}
-   <a href="{% url 'tournament:team_update' team.id %}">Edytuj</a>
-      <a href="{% url 'tournament:team_delete' team.id %}">Usuń</a>
+      <div class="my-button-container"><button class="my-button-edit">
+      <a href="{% url 'tournament:team_update' team.id %}">Edytuj</a></button>
+      <button class="my-button-delete">
+          <a href="{% url 'tournament:team_delete' team.id %}">Usuń</a></button></div>
   {% endif %}
     Gracze:
-    <ul>
+    <ul id="list">
     {% for player in object.players.all %}
-    	<li>{{ player }}</li>
+        <li><a href="{% url 'accounts:user_detail' player.id %}">{{ player }}</a></li>
     {% endfor %}
     </ul>
 

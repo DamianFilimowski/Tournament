@@ -7,9 +7,10 @@
     {% csrf_token %}
 
         {% for field in form %}
-            <p><input type="{{ field.widget.input_type }}"
-                      name="{{ field.name }}" placeholder="{{ field.name }}"></p>
+            <p><input type="{{ field.field.widget.input_type }}"
+                      name="{{ field.name }}" placeholder="{{ field.label }}"></p>
         {% endfor %}
+
 
 
     <input type="submit" value="Zarejestruj Się">

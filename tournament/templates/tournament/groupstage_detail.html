@@ -30,19 +30,19 @@
 
 
     Nierozegrane Mecze:
-    <ul>
+    <ul id="list">
     {% for match in groupstage.matches.all %}
     	<li><a href="{% url 'tournament:match_detail' match.id %}">
-            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+            {{ match.team1 }} vs {{ match.team2 }}</a></li>
     {% endfor %}
 
     </ul>
     {% if groupstage.matches_finished.exists %}
     Rozegrane Mecze
-    <ul>
+    <ul id="list">
     {% for match in groupstage.matches_finished.all %}
     	<li><a href="{% url 'tournament:match_detail' match.id %}">
-            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+            {{ match.team1 }} vs {{ match.team2 }}</a> {{ match.team1_score }} : {{ match.team2_score }}</li>
     {% endfor %}
 
     </ul>

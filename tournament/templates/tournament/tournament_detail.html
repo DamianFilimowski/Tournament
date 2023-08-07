@@ -16,17 +16,18 @@
           <div class="my-button-container"><button class="my-button-edit">
    <a href="{% url 'tournament:tournament_update' tournament.id %}">Edytuj</a>
           </button>
-          <div class="my-button-container"><button class="my-button-delete">
+          <button class="my-button-delete">
       <a href="{% url 'tournament:tournament_delete' tournament.id %}">Usuń</a>
           </button></div>
           {% if not tournament.phases_drawn %}
               <div class="my-button-container"><button class="my-button-start">
           	<a href="{% url 'tournament:tournament_start' tournament.id %}">Rozpocznij Turniej</a>
               </button></div>
+
           {% endif %} 
           {% if tournament.groupstage_set.exists %}
           	<h3>Grupy:</h3>
-          <ul>
+          <ul id="list">
           {% for group in tournament.groupstage_set.all %}
           	<li>
             <a href="{% url 'tournament:groupstage_detail' group.id %}">{{ group.name }}</a>
@@ -34,6 +35,7 @@
           {% endfor %}
               </ul>
           {% endif %}
+
           {% if tournament.playoff %}
               <a href="{% url 'tournament:playoff_detail' tournament.playoff.id %}">Playoff</a>
 

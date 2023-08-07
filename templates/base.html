@@ -20,8 +20,8 @@
             <li><a href="{% url "tournament:team_list" %}">Drużyny</a></li>
             <li><a href="{% url 'accounts:user_list' %}">Użytkownicy</a></li>
             {% if user.is_authenticated %}
-                <li><button id='profile' class="login-button">Profil</button></li>
-            <li><button id='logout' class="join-button">Wyloguj Się</button></li>
+                <li><button id='profile-button' class="login-button">Profil</button></li>
+            <li><button id='logout-button' class="join-button">Wyloguj Się</button></li>
             {% else %}
             <li><button id='login' class="login-button">Logowanie</button></li>
             <li><button id='register' class="join-button">Rejestracja</button></li>
@@ -32,5 +32,6 @@
     {% block content %}
     {% endblock content %}
     </div>
+
 </body>
 </html>
