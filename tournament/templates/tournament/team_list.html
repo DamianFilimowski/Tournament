@@ -2,5 +2,6 @@
 {% block content %}
     <h1>Lista Drużyn</h1>
 {% include 'list.html'  %}
-    <a href="{% url 'tournament:team_create' %}">Stwórz Drużynę</a>
+    <div class="my-button-container"><button class="my-button"><a href="{% url 'tournament:team_create' %}">
+        Stwórz Drużynę</a></button></div>
 {% endblock %}

@@ -22,7 +22,6 @@ nav{
     width: 5rem;
 }
 
-/*Styling Links*/
 .nav-links{
     display: flex;
     list-style: none;
@@ -107,6 +106,7 @@ nav{
     margin: 5px auto;
     background: #D8D9DA;
     padding-top: 20px;
+    text-align: center;
 }
 
 body {
@@ -208,3 +208,148 @@ h1 {
   border-color: #05a;
 }
 
+
+.my-button {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: 0;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: black;
+    background: #0d6efd;
+}
+
+.my-button:hover {
+    color: #fff;
+    background-color: #0546a0;
+}
+
+.my-button a {
+    color: black;
+    text-decoration: none;
+    transition: color 1s ease;
+}
+
+.my-button a:hover {
+    color: white;
+    transition: color 1s ease;
+}
+.my-button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.my-button-edit {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: 0;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: black;
+    background: #ff7f00;
+}
+
+.my-button-edit:hover {
+    color: #fff;
+    background-color: #cc6600;
+}
+
+.my-button-edit a {
+    color: black;
+    text-decoration: none;
+    transition: color 1s ease;
+}
+
+.my-button-edit a:hover {
+    color: white;
+    transition: color 1s ease;
+}
+.centre-that {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.my-button-delete {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: 0;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: black;
+    background: #ff0000;
+}
+
+.my-button-delete:hover {
+    color: #fff;
+    background-color: #cc0000;
+}
+
+.my-button-delete a {
+    color: black;
+    text-decoration: none;
+    transition: color 1s ease;
+}
+
+.my-button-delete a:hover {
+    color: white;
+    transition: color 1s ease;
+}
+
+.my-button-start {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    outline: 0;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: center;
+    border: 1px solid transparent;
+    padding: 6px 12px;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: black;
+    background: #00ff00;
+}
+
+.my-button-start:hover {
+    color: #fff;
+    background-color: #008000;
+}
+
+.my-button-start a {
+    color: black;
+    text-decoration: none;
+    transition: color 1s ease;
+}
+
+.my-button-start a:hover {
+    color: white;
+    transition: color 1s ease;
+}
