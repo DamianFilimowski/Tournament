@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
-    <p>Username: {{ user.username }}</p>
-    <p>First Name: {{ user.first_name }}</p>
-    <p>Last Name: {{ user.last_name }}</p>
+    <p>Nazwa Użytkownika: {{ user.username }}</p>
+    <p>Imie: {{ user.first_name }}</p>
+    <p>Nazwisko: {{ user.last_name }}</p>
     <a href="{% url "accounts:logout" %}">Wyloguj Się</a>
+{% if user.player.exists %}
+       <p>Zawodnik drużyn:</p>
+        <ul id="list">
+    {% for team in user.player.all %}
+        <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></li>
+    {% endfor %}
+        </ul>
+    {% endif %}
+    <p>Strzelone gole: {{ user.goals }}</p>
 
 
 

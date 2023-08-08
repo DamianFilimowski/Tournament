@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-    <p>Username: {{ customuser.username }}</p>
+    <p>Nazwa Użytkownika: {{ customuser.username }}</p>
+    {% if customuser.player.exists %}
+    <p>Zawodnik drużyn:</p>
+        <ul id="list">
+    {% for team in customuser.player.all %}
+        <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></li>
+    {% endfor %}
+        </ul>
+    {% endif %}
+    <p>Strzelone gole: {{ customuser.goals }}</p>
 
 
 

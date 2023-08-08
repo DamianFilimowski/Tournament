@@ -22,7 +22,7 @@
           {% if not tournament.phases_drawn %}
               <div class="my-button-container"><button class="my-button-start">
           	<a href="{% url 'tournament:tournament_start' tournament.id %}">Rozpocznij Turniej</a>
-              </button></div>
+              </button></div>{% endif %}
 
           {% endif %} 
           {% if tournament.groupstage_set.exists %}
@@ -41,5 +41,5 @@
 
           {% endif %}
 
-  {% endif %}
+
 {% endblock %}

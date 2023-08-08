@@ -1,6 +1,5 @@
 import random
 
-from django.db.models import Max
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -258,7 +257,12 @@ class MatchUpdateScorersView(UserPassesTestMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.match = Match.objects.get(id=self.kwargs['pk'])
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        scorer = form.instance.scorer
+        user = CustomUser.objects.get(id=scorer.id)
+        user.goals += 1
+        user.save()
+        return response
 
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.kwargs['pk']})
