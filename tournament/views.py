@@ -285,6 +285,14 @@ class MatchDeleteScorersView(UserPassesTestMixin, DeleteView):
         scorer = self.get_object()
         return reverse_lazy('tournament:match_detail', kwargs={'pk': scorer.match.id})
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        scorer = self.object.scorer
+        user = CustomUser.objects.get(id=scorer.id)
+        user.goals -= 1
+        user.save()
+        return response
+
 
 class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
     def test_func(self):
