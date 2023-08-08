@@ -167,3 +167,12 @@ def move_to_next_phase(self, playoff, winner):
         match = matches.get(order=(self.object.order + 1) // 2)
         match.team1 = winner
         match.save()
+
+
+def if_player_in_tournament(tournament, team):
+    tournament_players = CustomUser.objects.filter(player__tournament=tournament)
+    players = team.players.all()
+    for player in players:
+        if player in tournament_players:
+            return True
+    return False

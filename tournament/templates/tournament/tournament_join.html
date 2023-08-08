@@ -8,4 +8,9 @@ Wybierz drużynę którą chcesz dołączyć do turnieju {{ tournament.name }}<b
     </form>
     {% endfor %}
 
+    {% for message in message_list %}
+    	<h1>{{ message }}</h1>
+    {% endfor %}
+
+
 {% endblock %}

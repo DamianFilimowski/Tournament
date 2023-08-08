@@ -1,6 +1,6 @@
 import random
-
-from django.db.models import Count, Sum
+from django.contrib import messages
+from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -430,12 +430,17 @@ class TournamentJoin(UserPassesTestMixin, View):
     def get(self, request, pk):
         tournament = Tournament.objects.get(pk=pk)
         teams = Team.objects.filter(captain=self.request.user).exclude(tournament=tournament)
+        messages_received = messages.get_messages(request)
+        message_list = list(messages_received)
         return render(request, 'tournament/tournament_join.html', {'teams': teams,
-                                                                   'tournament': tournament})
+                                                                   'tournament': tournament, 'message_list': message_list})
 
     def post(self, request, pk):
         team = Team.objects.get(id=request.POST.get('team_id'))
         tournament = Tournament.objects.get(pk=pk)
+        if if_player_in_tournament(tournament, team):
+            messages.success(request, "Jeden z Twoich zawodników jest członkiem innej drużyny będącej w turnieju")
+            return redirect('tournament:tournament_join', pk)
         tournament.teams.add(team)
         return redirect('tournament:tournament_detail', pk)
 
