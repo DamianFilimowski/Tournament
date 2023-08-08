@@ -1,5 +1,6 @@
 import random
 
+from django.db.models import Count, Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
@@ -438,3 +439,9 @@ class TournamentJoin(UserPassesTestMixin, View):
         tournament.teams.add(team)
         return redirect('tournament:tournament_detail', pk)
 
+
+class TournamentScorersView(View):
+    def get(self, request, pk):
+        scorers = CustomUser.objects.filter(scorers__match__tournament=pk).annotate(scored=Count('scorers')).order_by('-scored')
+        print(scorers)
+        return render(request, 'tournament/top_scorers.html', {'scorers': scorers, 'pk': pk})

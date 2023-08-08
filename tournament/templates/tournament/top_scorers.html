@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+{% for scorer in scorers %}
+    <p>{{ scorer.username }} - {{ scorer.scored }} goals</p>
+{% endfor %}
+    <div class="my-button-container"><button class="my-button">
+   <a href="{% url 'tournament:tournament_detail' pk %}">Wróć</a>
+    </button></div>
+
+{% endblock %}
