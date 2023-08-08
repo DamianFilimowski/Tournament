@@ -51,7 +51,7 @@ class Match(models.Model):
     result = models.IntegerField(choices=RESULT_CHOICES, null=True, default=3)
     match_date = models.DateTimeField(null=True, blank=True)
     is_group = models.BooleanField(default=False)
-
+    phase_name = models.CharField(default=None, blank=True, null=True, max_length=64)
 
     def get_detail_url(self):
         return reverse('tournament:match_detail', kwargs={'pk': self.id})

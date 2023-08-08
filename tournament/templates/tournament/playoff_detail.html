@@ -2,10 +2,12 @@
 {% block content %}
    <h1>{{ playoff }}</h1>
     Mecze:
-    <ul>
+    <ul id="list">
     {% for match in playoff.matches.all %}
-    	<li><a href="{% url 'tournament:match_detail' match.id %}">
-            {{ match.team1 }} vs {{ match.team2 }} {{ match.match_date }}</a></li>
+    	<li>{{ match.phase_name }} <a href="{% url 'tournament:match_detail' match.id %}">
+            {{ match.team1 }} vs {{ match.team2 }}</a>
+            {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}{% endif %}
+            {% if match.match_date %} {{ match.match_date }}{% endif %}</li>
     {% endfor %}
 
     </ul>

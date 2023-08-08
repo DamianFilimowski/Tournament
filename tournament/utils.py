@@ -1,5 +1,7 @@
 import math
 
+from django.db.models import Max
+
 from tournament.models import *
 
 
@@ -112,3 +114,28 @@ def set_result(self):
 def from_matches_to_finished(self, group_stage):
     group_stage.matches.remove(self.object)
     group_stage.matches_finished.add(self.object)
+
+
+def set_phase_names(playoff):
+    matches = playoff.matches.all()
+    max_phase = matches.aggregate(Max('phase'))['phase__max']
+    for match in matches:
+        if match.phase == max_phase and match.order == 2:
+            match.phase_name = 'Finał'
+        elif match.phase == max_phase and match.order == 1:
+            match.phase_name = 'Mecz o trzecie miejsce'
+        elif match.phase == max_phase - 1:
+            match.phase_name = 'Półfinał'
+        elif match.phase == max_phase - 2:
+            match.phase_name = 'Ćwierćfinał'
+        elif match.phase == max_phase - 3:
+            match.phase_name = '1/8 finału'
+        elif match.phase == max_phase - 4:
+            match.phase_name = '1/16 finału'
+        elif match.phase == max_phase - 5:
+            match.phase_name = '1/32 finału'
+        elif match.phase == max_phase - 6:
+            match.phase_name = '1/64 finału'
+        else:
+            match.phase_name = '1/128 finału'
+        match.save()

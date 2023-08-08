@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
     <p>Turniej {{ match.tournament.name}}</p>
-    <p>
-    {% if match.team1 is not None %}
+    <p>Faza: {% if match.phase_name %}{{ match.phase_name }}{% else %}
+    	Grupowa
+    {% endif %} </p>
+    <p>{% if match.team1 is not None %}
     <a href="{% url "tournament:team_detail" match.team1.id %}">{{ match.team1 }}</a>
         {% else %} Brak Drużyny
     {% endif %} vs {% if match.team2 is not None %}

@@ -155,8 +155,8 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
                 loser = self.object.team1
             if self.object.phase == max_phase - 1:
                 matches = playoff.matches.filter(phase=max_phase)
-                final = matches.get(order=1)
-                mini_final = matches.get(order=2)
+                final = matches.get(order=2)
+                mini_final = matches.get(order=1)
                 if self.object.order == 1:
                     final.team1 = winner
                     final.save()
@@ -256,6 +256,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             playoff_matches = create_playoff_matches(number_playoff_matches, tournament)
             for match in playoff_matches:
                 playoff.matches.add(match)
+            set_phase_names(playoff)
             tournament.phases_drawn = True
             tournament.save()
             return redirect('tournament:tournament_detail', pk)
@@ -275,6 +276,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             playoff_matches = create_playoff_matches(number_playoff_matches, tournament)
             for match in playoff_matches:
                 playoff.matches.add(match)
+            set_phase_names(playoff)
             tournament.phases_drawn = True
             tournament.save()
             return redirect('tournament:tournament_detail', pk)
@@ -289,12 +291,16 @@ class TournamentCreatePlayoff(UserPassesTestMixin, View):
         tournament = Tournament.objects.get(pk=pk)
         teams = list(tournament.teams.all())
         total_teams = len(teams)
-        num_matches = get_number_playoff_matches(total_teams) * 4
+        if is_power_of_two(total_teams):
+            num_matches = get_number_playoff_matches(total_teams) * 2
+        else:
+            num_matches = get_number_playoff_matches(total_teams) * 4
         matches = create_playoff_matches(num_matches, tournament)
         random.shuffle(teams)
         playoff = Playoff.objects.create(tournament=tournament)
         for match in matches:
             playoff.matches.add(match)
+        set_phase_names(playoff)
         matches = playoff.matches.filter(phase=1)
         for match in matches:
             team1 = teams.pop(0)
