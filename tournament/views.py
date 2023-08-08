@@ -201,6 +201,39 @@ class MatchUpdateExtraTimeView(UserPassesTestMixin, UpdateView):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
 
 
+class MatchUpdatePenaltyView(UserPassesTestMixin, UpdateView):
+    model = Match
+    template_name = 'tournament/form.html'
+    fields = ['team1_penalty_score', 'team2_penalty_score']
+
+    def test_func(self):
+        match = self.get_object()
+        return (self.request.user == match.tournament.tournament_admin and match.team1_score == match.team2_score
+                and match.team1_score and match.team1_extra_time_score is not None and match.team1_penalty_score is None)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        playoff = Playoff.objects.get(tournament=self.object.tournament)
+        max_phase = playoff.matches.aggregate(Max('phase'))['phase__max']
+        if self.object.team1_penalty_score == self.object.team2_penalty_score:
+            return response
+        elif self.object.team1_penalty_score > self.object.team2_penalty_score:
+            winner = self.object.team1
+            loser = self.object.team2
+        else:
+            winner = self.object.team2
+            loser = self.object.team1
+        if self.object.phase == max_phase - 1:
+            set_teams_for_final_phase(self, max_phase, playoff, winner, loser)
+        elif self.object.phase == max_phase:
+            return response
+        else:
+            move_to_next_phase(self, playoff, winner)
+        return response
+
+    def get_success_url(self):
+        return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
+
 class MatchUpdateDateView(UserPassesTestMixin, UpdateView):
     model = Match
     template_name = 'tournament/form.html'

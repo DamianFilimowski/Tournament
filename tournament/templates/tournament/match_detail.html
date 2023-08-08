@@ -10,17 +10,30 @@
     {% endif %} vs {% if match.team2 is not None %}
         <a href="{% url "tournament:team_detail" match.team2.id %}">{{ match.team2 }}</a>
     {% else %} Brak Drużyny {% endif %}</p>
-    <p>Wynik {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}{% else %}
+    <p>Wynik {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}
+        {% if match.team1_extra_time_score is not None %}
+        	<p>Dogrywka: {{ match.team1_extra_time_score}}:{{ match.team2_extra_time_score}}</p>
+            {% if match.team1_penalty_score is not None %}
+        	<p>Karne: {{ match.team1_penalty_score}}:{{ match.team2_penalty_score}}</p>
+        {% endif %}
+        {% endif %}
+    {% else %}
         Mecz nie został jeszcze rozegrany
         {% if user == match.tournament.tournament_admin %}
             <div class="my-button-container"><button class="my-button-start">
    <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
             </button> </div>
   {% endif %}{% endif %}
+    {% if user == match.tournament.tournament_admin %}
     {% if match.team1_score is not None and match.is_group == False and match.team1_score == match.team2_score and match.team1_extra_time_score is None%}
                   <div class="my-button-container"><button class="my-button-start">
-   <a href="{% url 'tournament:match_update_extra_time' match.id %}">Dodaj wynik po dogrywce</a>
+   <a href="{% url 'tournament:match_update_extra_time' match.id %}">Dodaj wynik dogrywki</a>
             </button> </div>     {% endif %}
+        {% if match.team1_extra_time_score is not one and match.team1_extra_time_score == match.team2_extra_time_score and match.team1_extra_time_score is None%}
+            <div class="my-button-container"><button class="my-button-start">
+   <a href="{% url 'tournament:match_update_penalty' match.id %}">Dodaj wynik karnych</a>
+            </button> </div>
+{% endif %}{% endif %}
     <p>strzelcy bramek:</p>
     <ul id="list">
     {% for goal in match.scorers_set.all %}
