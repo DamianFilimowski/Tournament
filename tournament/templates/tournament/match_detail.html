@@ -15,8 +15,12 @@
         {% if user == match.tournament.tournament_admin %}
             <div class="my-button-container"><button class="my-button-start">
    <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
-            </button></div>
+            </button> </div>
   {% endif %}{% endif %}
+    {% if match.team1_score is not None and match.is_group == False and match.team1_score == match.team2_score and match.team1_extra_time_score is None%}
+                  <div class="my-button-container"><button class="my-button-start">
+   <a href="{% url 'tournament:match_update_extra_time' match.id %}">Dodaj wynik po dogrywce</a>
+            </button> </div>     {% endif %}
     <p>strzelcy bramek:</p>
     <ul id="list">
     {% for goal in match.scorers_set.all %}

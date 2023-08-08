@@ -139,3 +139,31 @@ def set_phase_names(playoff):
         else:
             match.phase_name = '1/128 finału'
         match.save()
+
+
+def set_teams_for_final_phase(self, max_phase, playoff, winner, loser):
+    matches = playoff.matches.filter(phase=max_phase)
+    final = matches.get(order=2)
+    mini_final = matches.get(order=1)
+    if self.object.order == 1:
+        final.team1 = winner
+        final.save()
+        mini_final.team1 = loser
+        mini_final.save()
+    else:
+        final.team2 = winner
+        final.save()
+        mini_final.team2 = loser
+        mini_final.save()
+
+
+def move_to_next_phase(self, playoff, winner):
+    matches = playoff.matches.filter(phase=self.object.phase + 1)
+    if self.object.order % 2 == 0:
+        match = matches.get(order=self.object.order // 2)
+        match.team2 = winner
+        match.save()
+    else:
+        match = matches.get(order=(self.object.order + 1) // 2)
+        match.team1 = winner
+        match.save()

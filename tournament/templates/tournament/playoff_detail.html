@@ -6,7 +6,10 @@
     {% for match in playoff.matches.all %}
     	<li>{{ match.phase_name }} <a href="{% url 'tournament:match_detail' match.id %}">
             {{ match.team1 }} vs {{ match.team2 }}</a>
-            {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}{% endif %}
+            {% if match.team1_score is not None %}{{ match.team1_score}}:{{ match.team2_score}}
+            {% if match.team1_extra_time_score is not None %} Dogrywka:
+            	{{ match.team1_extra_time_score }}:{{ match.team2_extra_time_score }}
+            {% endif %} {% endif %}
             {% if match.match_date %} {{ match.match_date }}{% endif %}</li>
     {% endfor %}
 

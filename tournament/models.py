@@ -52,6 +52,10 @@ class Match(models.Model):
     match_date = models.DateTimeField(null=True, blank=True)
     is_group = models.BooleanField(default=False)
     phase_name = models.CharField(default=None, blank=True, null=True, max_length=64)
+    team1_extra_time_score = models.PositiveIntegerField(default=None, null=True, blank=True)
+    team2_extra_time_score = models.PositiveIntegerField(default=None, null=True, blank=True)
+    team1_penalty_score = models.PositiveIntegerField(default=None, null=True, blank=True)
+    team2_penalty_score = models.PositiveIntegerField(default=None, null=True, blank=True)
 
     def get_detail_url(self):
         return reverse('tournament:match_detail', kwargs={'pk': self.id})
