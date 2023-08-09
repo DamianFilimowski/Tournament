@@ -53,9 +53,11 @@ class LogoutView(View):
         logout(request)
         return redirect('accounts:login')
 
+
 class UserListView(ListView):
     model = CustomUser
     template_name = 'accounts/user_list.html'
+
 
 class UserDetailView(DetailView):
     model = CustomUser

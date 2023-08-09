@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views import View
 
-from .forms import SearchPersonForm
+from .forms import *
 from .utils import *
 
 
@@ -16,6 +16,18 @@ from .utils import *
 class TeamListView(ListView):
     model = Team
     template_name = 'tournament/team_list.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        name = self.request.GET.get('nazwa', '')
+        short_name = self.request.GET.get('krotka_nazwa', '')
+        queryset = queryset.filter(name__icontains=name, short_name__icontains=short_name)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = SearchTeamForm(self.request.GET)
+        return context
 
 
 class TeamCreateView(LoginRequiredMixin, CreateView):

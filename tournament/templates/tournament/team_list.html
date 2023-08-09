@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
+    <form>
+    {{ search_form.as_p }}
+    <input type="submit" value="szukaj">
+    </form>
     <h1>Lista Drużyn</h1>
 {% include 'list.html'  %}
     <div class="my-button-container"><button class="my-button"><a href="{% url 'tournament:team_create' %}">
