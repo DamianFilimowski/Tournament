@@ -48,6 +48,13 @@ class TeamDetailView(DetailView):
     model = Team
     template_name = 'tournament/team_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        messages_received = messages.get_messages(self.request)
+        message_list = list(messages_received)
+        context['message_list'] = message_list
+        return context
+
 
 class TeamUpdateView(UserPassesTestMixin, UpdateView):
     model = Team
@@ -101,6 +108,22 @@ class TeamAddPlayer(UserPassesTestMixin, View):
         team.players.add(player)
         messages.success(request, f"Zaproszono użytkownika {player.username}")
         return redirect('tournament:team_add_player', pk)
+
+
+class TeamJoinView(UserPassesTestMixin, View):
+    def test_func(self):
+        team = Team.objects.get(pk=self.kwargs['pk'])
+        return self.request.user != team.players and self.request.user.is_authenticated
+
+    def get(self, request, pk):
+        user = self.request.user
+        team = Team.objects.get(pk=pk)
+        team.players.add(user)
+        messages.success(request, "Dołączyłeś do drużyny")
+        return redirect('tournament:team_detail', pk)
+
+
+
 
 
 class TournamentListView(ListView):
