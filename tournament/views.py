@@ -509,6 +509,9 @@ class TournamentCreatePlayoff(UserPassesTestMixin, View):
         tournament = Tournament.objects.get(pk=pk)
         teams = list(tournament.teams.all())
         total_teams = len(teams)
+        if total_teams < 8:
+            message = 'Aby rozpocząć turniej musi byc przynajmniej 8 drużyn'
+            return render(request, 'tournament/message.html', {'message': message})
         if is_power_of_two(total_teams):
             num_matches = get_number_playoff_matches(total_teams) * 2
         else:
