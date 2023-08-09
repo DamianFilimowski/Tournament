@@ -6,6 +6,7 @@ from django.views.generic import ListView, DetailView
 
 from accounts.forms import AddUserModelForm
 from accounts.models import CustomUser
+from tournament.forms import SearchPersonForm
 
 
 # Create your views here.
@@ -57,6 +58,20 @@ class LogoutView(View):
 class UserListView(ListView):
     model = CustomUser
     template_name = 'accounts/user_list.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        first_name = self.request.GET.get('imie', '')
+        last_name = self.request.GET.get('nazwisko', '')
+        username = self.request.GET.get('nazwa_uzytkownika', '')
+        queryset = queryset.filter(first_name__icontains=first_name, last_name__icontains=last_name,
+                                   username__icontains=username)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_form'] = SearchPersonForm(self.request.GET)
+        return context
 
 
 class UserDetailView(DetailView):

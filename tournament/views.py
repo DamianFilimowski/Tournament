@@ -180,7 +180,7 @@ class TournamentDetailView(DetailView):
 class TournamentUpdateView(UserPassesTestMixin, UpdateView):
     model = Tournament
     template_name = 'tournament/form.html'
-    fields = ['name', 'max_teams_amount', 'teams']
+    fields = ['name', 'max_teams_amount']
 
     def test_func(self):
         tournament = self.get_object()
@@ -227,6 +227,9 @@ class TournamentAddTeamView(UserPassesTestMixin, View):
         tournament_teams = tournament.teams.all()
         if team in tournament_teams:
             messages.success(request, "Ta drużyna jest juz w tym turnieju")
+            return redirect('tournament:tournament_add_team', pk)
+        if if_player_in_tournament(tournament, team):
+            messages.success(request, f"Zawodnik drużyny '{team.name}' juz gra w tym turnieju")
             return redirect('tournament:tournament_add_team', pk)
         tournament.teams.add(team)
         tournament_teams = len(list(tournament.teams.all()))

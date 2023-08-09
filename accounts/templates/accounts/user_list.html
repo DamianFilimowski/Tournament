@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
+    <form>
+    {{ search_form.as_p }}
+    <input type="submit" value="szukaj">
+    </form>
+    <h1>Lista Użytkownikow</h1>
 {% include 'list.html'  %}
 {% endblock %}
