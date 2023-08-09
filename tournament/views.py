@@ -240,6 +240,19 @@ class TournamentAddTeamView(UserPassesTestMixin, View):
         return redirect('tournament:tournament_add_team', pk)
 
 
+class TournamentKickTeamView(UserPassesTestMixin, View):
+    def test_func(self):
+        tournament = Tournament.objects.get(id=self.kwargs['pk'])
+        return self.request.user == tournament.tournament_admin
+
+    def get(self, request, pk, team):
+        tournament = Tournament.objects.get(id=pk)
+        team = Team.objects.get(id=team)
+        tournament.teams.remove(team)
+        messages.success(request, f"Druzyna {team.name} została usunięta z turnieju")
+        return redirect('tournament:tournament_detail', pk)
+
+
 
 
 class MatchDetailView(DetailView):

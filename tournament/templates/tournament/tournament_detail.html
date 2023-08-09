@@ -18,7 +18,11 @@
     Drużyny:
     <ul id="list">
     {% for team in tournament.teams.all %}
-        <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team }}</a></li>
+        <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team }}</a>
+        {% if user == tournament.tournament_admin and not tournament.phases_drawn%}
+        	<a href="{% url 'tournament:tournament_kick_team' tournament.id team.id%}"> - Usuń z Turnieju</a>
+        {% endif %}
+        </li>
     {% endfor %}
     </ul>
       {% if user == tournament.tournament_admin %}
@@ -48,7 +52,8 @@
               <a href="{% url 'tournament:playoff_detail' tournament.playoff.id %}">Playoff</a>
 
           {% endif %}
+    {% if tournament.phases_drawn %}
     <p><a href="{% url "tournament:tournament_top_scorers" tournament.id %}">Najlepsi Strzelcy</a></p>
-
+{% endif %}
 
 {% endblock %}
