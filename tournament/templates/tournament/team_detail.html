@@ -15,7 +15,12 @@
     Gracze:
     <ul id="list">
     {% for player in object.players.all %}
-        <li><a href="{% url 'accounts:user_detail' player.id %}">{{ player }}</a></li>
+        <li><a href="{% url 'accounts:user_detail' player.id %}">{{ player }}</a>
+        {% if user == team.captain and player != user %}
+        	<div class="my-button-container"><button class="my-button-delete">
+          <a href="{% url 'tournament:team_kick' team.id player.id %}">Usuń z drużyny</a></button></div>
+        {% endif %}
+        </li>
     {% endfor %}
     </ul>
     {% if user == team.captain %}
@@ -26,7 +31,10 @@
     	<button class="my-button-start">
           <a href="{% url 'tournament:team_join' team.id %}">Dołącz do drużyny</a></button></div>
     {% endif %} 
-
+    {% if user in team.players.all and user != team.captain %}
+    	<button class="my-button-delete">
+          <a href="{% url 'tournament:team_leave' team.id %}">Opuść drużynę</a></button></div>
+    {% endif %}
 
 
 

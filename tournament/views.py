@@ -123,6 +123,30 @@ class TeamJoinView(UserPassesTestMixin, View):
         return redirect('tournament:team_detail', pk)
 
 
+class TeamKickPlayerView(UserPassesTestMixin, View):
+    def test_func(self):
+        team = Team.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == team.captain
+
+    def get(self, request, pk, player):
+        team = Team.objects.get(pk=pk)
+        player = CustomUser.objects.get(pk=player)
+        team.players.remove(player)
+        messages.success(request, f"Usunięto gracza {player.username}")
+        return redirect('tournament:team_detail', pk)
+
+
+class TeamLeaveView(UserPassesTestMixin, View):
+    def test_func(self):
+        team = Team.objects.get(pk=self.kwargs['pk'])
+        return self.request.user in team.players.all() and self.request.user != team.captain
+
+    def get(self, request, pk):
+        user = self.request.user
+        team = Team.objects.get(pk=pk)
+        team.players.remove(user)
+        messages.success(request, "Opuściłeś drużynę")
+        return redirect('tournament:team_detail', pk)
 
 
 
