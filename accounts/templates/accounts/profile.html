@@ -4,6 +4,14 @@
     <p>Imie: {{ user.first_name }}</p>
     <p>Nazwisko: {{ user.last_name }}</p>
     <a href="{% url "accounts:logout" %}">Wyloguj Się</a>
+    {% if user.team_captain.exists %}
+       <p>Drużyny których jestesś kapitanem:</p>
+        <ul id="list">
+    {% for team in user.team_captain.all %}
+        <li><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></li>
+    {% endfor %}
+        </ul>
+    {% endif %}
 {% if user.player.exists %}
        <p>Zawodnik drużyn:</p>
         <ul id="list">

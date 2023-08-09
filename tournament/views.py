@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.views import View
 
+from .forms import SearchPersonForm
 from .utils import *
 
 
@@ -56,6 +57,38 @@ class TeamDeleteView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         team = self.get_object()
         return self.request.user == team.captain
+
+
+class TeamAddPlayer(UserPassesTestMixin, View):
+    def test_func(self):
+        team = Team.objects.get(pk=self.kwargs['pk'])
+        return self.request.user == team.captain
+
+    def get(self, request, pk):
+        search_form = SearchPersonForm(request.GET)
+        users = CustomUser.objects.all()
+        if search_form.is_valid():
+            first_name = search_form.cleaned_data.get('imie', '')
+            last_name = search_form.cleaned_data.get('nazwisko', '')
+            username = search_form.cleaned_data.get('nazwa_uzytkownika', '')
+            users = users.filter(first_name__icontains=first_name, last_name__icontains=last_name,
+                                 username__icontains=username)
+        messages_received = messages.get_messages(request)
+        message_list = list(messages_received)
+        context = {'search_form': search_form, 'users': users, 'message_list': message_list}
+        return render(request, 'tournament/team_add_player.html', context=context)
+
+    def post(self, request, pk):
+        team = Team.objects.get(pk=self.kwargs['pk'])
+        player = request.POST.get('user_id')
+        player = CustomUser.objects.get(id=player)
+        team_players = team.players.all()
+        if player in team_players:
+            messages.success(request, "Ten użytkownik już jest w Twojej drużynie")
+            return redirect('tournament:team_add_player', pk)
+        team.players.add(player)
+        messages.success(request, f"Zaproszono użytkownika {player.username}")
+        return redirect('tournament:team_add_player', pk)
 
 
 class TournamentListView(ListView):
@@ -448,5 +481,5 @@ class TournamentJoin(UserPassesTestMixin, View):
 class TournamentScorersView(View):
     def get(self, request, pk):
         scorers = CustomUser.objects.filter(scorers__match__tournament=pk).annotate(scored=Count('scorers')).order_by('-scored')
-        print(scorers)
         return render(request, 'tournament/top_scorers.html', {'scorers': scorers, 'pk': pk})
+
