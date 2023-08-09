@@ -236,7 +236,7 @@ def test_tournament_delete_creator_post(tournaments, user):
 
 
 @pytest.mark.django_db
-def test_match_detail(matches):
+def test_match_detail(matches, groups):
     match = matches[0]
     url = reverse('tournament:match_detail', kwargs={'pk': match.id})
     response = browser.get(url)

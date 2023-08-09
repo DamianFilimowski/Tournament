@@ -1,10 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% for message in message_list %}
+    	<h1>{{ message }}</h1>
+    {% endfor %}
 <div class="centre-that">Nazwa Turnieju: {{ tournament.name }}</div><br>
 {% if not tournament.phases_drawn and tournament.max_teams_amount > tournament.teams.count %}
     <div class="my-button-container"><button class="my-button">
         <a href="{% url 'tournament:tournament_join' tournament.id %}">
         Dołącz do Turnieju</a></button></div>
+    {% if user == tournament.tournament_admin %}
+        <div class="my-button-container"><button class="my-button">
+          	<a href="{% url 'tournament:tournament_add_team' tournament.id %}">Dodaj drużynę do turnieju</a>
+              </button></div>
+
+    {% endif %}
 {% endif %}
     Drużyny:
     <ul id="list">
@@ -22,9 +31,8 @@
           {% if not tournament.phases_drawn %}
               <div class="my-button-container"><button class="my-button-start">
           	<a href="{% url 'tournament:tournament_start' tournament.id %}">Rozpocznij Turniej</a>
-              </button></div>{% endif %}
+              </button></div>{% endif %}{% endif %}
 
-          {% endif %} 
           {% if tournament.groupstage_set.exists %}
           	<h3>Grupy:</h3>
           <ul id="list">

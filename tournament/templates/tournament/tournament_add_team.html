@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% for message in message_list %}
+    	<h1>{{ message }}</h1>
+    {% endfor %}
+    Ilość drużyn: {{ tournament.teams.count }}/{{ tournament.max_teams_amount }}
+    <form>
+    {{ form.as_p }}
+    <input type="submit" value="szukaj">
+    </form>
+    {% if teams.exists %}
+        <table>
+        {% for team in teams %}
+            <tr>
+            <td><a href="{% url 'tournament:team_detail' team.id %}">{{ team.name }}</a></td>
+            <td>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="id" value="{{ team.id }}">
+                <input type="submit" Value="dodaj">
+            </form></td></tr>
+
+        {% endfor %}
+        </table>
+
+    {% endif %}
+{% endblock %}

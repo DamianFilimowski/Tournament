@@ -149,7 +149,6 @@ class TeamLeaveView(UserPassesTestMixin, View):
         return redirect('tournament:team_detail', pk)
 
 
-
 class TournamentListView(ListView):
     model = Tournament
     template_name = 'tournament/tournament_list.html'
@@ -169,6 +168,13 @@ class TournamentCreateView(LoginRequiredMixin, CreateView):
 class TournamentDetailView(DetailView):
     model = Tournament
     template_name = 'tournament/tournament_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        messages_received = messages.get_messages(self.request)
+        message_list = list(messages_received)
+        context['message_list'] = message_list
+        return context
 
 
 class TournamentUpdateView(UserPassesTestMixin, UpdateView):
@@ -191,6 +197,46 @@ class TournamentDeleteView(UserPassesTestMixin, DeleteView):
     def test_func(self):
         tournament = self.get_object()
         return self.request.user == tournament.tournament_admin
+
+
+class TournamentAddTeamView(UserPassesTestMixin, View):
+    def test_func(self):
+        tournament = Tournament.objects.get(id=self.kwargs['pk'])
+        teams = list(tournament.teams.all())
+        max_teams = tournament.max_teams_amount
+        return self.request.user == tournament.tournament_admin and len(teams) < max_teams
+
+    def get(self, request, pk):
+        tournament = Tournament.objects.get(pk=pk)
+        tournament_teams = tournament.teams.all()
+        teams = Team.objects.all().exclude(pk__in=tournament_teams)
+        form = SearchTeamForm(self.request.GET)
+        if form.is_valid():
+            name = form.cleaned_data.get('nazwa', '')
+            short_name = form.cleaned_data.get('krotka_nazwa', '')
+            teams = teams.filter(name__icontains=name, short_name__icontains=short_name)
+        messages_received = messages.get_messages(request)
+        message_list = list(messages_received)
+        context = {'teams': teams, 'form': form, 'tournament': tournament, 'message_list': message_list}
+        return render(request, 'tournament/tournament_add_team.html', context=context)
+
+    def post(self, request, pk):
+        tournament = Tournament.objects.get(pk=pk)
+        team = request.POST.get('id')
+        team = Team.objects.get(id=team)
+        tournament_teams = tournament.teams.all()
+        if team in tournament_teams:
+            messages.success(request, "Ta drużyna jest juz w tym turnieju")
+            return redirect('tournament:tournament_add_team', pk)
+        tournament.teams.add(team)
+        tournament_teams = len(list(tournament.teams.all()))
+        if tournament_teams == tournament.max_teams_amount:
+            messages.success(request, f"Osiągnięto maksymalną ilość drużyn")
+            return redirect('tournament:tournament_detail', pk)
+        messages.success(request, f"Drużyna {team.name} została dodana")
+        return redirect('tournament:tournament_add_team', pk)
+
+
 
 
 class MatchDetailView(DetailView):
