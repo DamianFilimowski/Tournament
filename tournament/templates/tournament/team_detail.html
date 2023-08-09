@@ -15,6 +15,11 @@
         <li><a href="{% url 'accounts:user_detail' player.id %}">{{ player }}</a></li>
     {% endfor %}
     </ul>
+    {% if user == team.captain %}
+        <button class="my-button-start">
+          <a href="{% url 'tournament:team_add_player' team.id %}">Dodaj Zawodnika</a></button></div>
+    {% endif %}
+
 
 
 {% endblock %}

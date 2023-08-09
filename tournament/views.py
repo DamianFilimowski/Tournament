@@ -75,7 +75,7 @@ class TeamAddPlayer(UserPassesTestMixin, View):
                                  username__icontains=username)
         messages_received = messages.get_messages(request)
         message_list = list(messages_received)
-        context = {'search_form': search_form, 'users': users, 'message_list': message_list}
+        context = {'search_form': search_form, 'users': users, 'message_list': message_list, 'pk': pk}
         return render(request, 'tournament/team_add_player.html', context=context)
 
     def post(self, request, pk):
