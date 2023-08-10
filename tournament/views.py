@@ -606,4 +606,3 @@ class TournamentScorersView(View):
     def get(self, request, pk):
         scorers = CustomUser.objects.filter(scorers__match__tournament=pk).annotate(scored=Count('scorers')).order_by('-scored')
         return render(request, 'tournament/top_scorers.html', {'scorers': scorers, 'pk': pk})
-
