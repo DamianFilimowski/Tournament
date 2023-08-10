@@ -48,6 +48,8 @@ def test_team_create_logged_too_long_name_short(user):
     browser.force_login(user)
     response = browser.post(url, data)
     assert response.status_code == 200
+    with pytest.raises(Team.DoesNotExist):
+        Team.objects.get(short_name='babasasasasa')
 
 
 @pytest.mark.django_db

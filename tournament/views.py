@@ -329,7 +329,7 @@ class MatchUpdateExtraTimeView(UserPassesTestMixin, UpdateView):
     def test_func(self):
         match = self.get_object()
         return (self.request.user == match.tournament.tournament_admin and match.team1_score == match.team2_score
-                and match.team1_score and match.team1_extra_time_score is None)
+                and match.team1_score is not None and match.team1_extra_time_score is None)
 
     def form_valid(self, form):
         response = super().form_valid(form)

@@ -61,7 +61,11 @@
     {% endif %} </p>
     {% endif %}
     {% if match.is_group %}
+        {% if match.matches.first.id %}
         <a href="{% url 'tournament:groupstage_detail' match.matches.first.id %}">Powrót</a>
+            {% else %}
+            <a href="{% url 'tournament:groupstage_detail' match.groupstage_set.first.id %}">Powrót</a>
+            {% endif %}
     	{% else %}
         <a href="{% url 'tournament:playoff_detail' match.playoff_set.first.id %}">Powrót</a>
     {% endif %}
