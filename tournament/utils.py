@@ -176,3 +176,24 @@ def if_player_in_tournament(tournament, team):
         if player in tournament_players:
             return True
     return False
+
+
+def determine_winner_loser(self, score1, score2):
+    if score1 == score2:
+        return None, None
+    elif score1 > score2:
+        return self.object.team1, self.object.team2
+    else:
+        return self.object.team2, self.object.team1
+
+
+def process_match_result(self, playoff, max_phase, team1_score, team2_score, response):
+    winner, loser = determine_winner_loser(self, team1_score, team2_score)
+    if winner is None and loser is None:
+        return response
+    if self.object.phase == max_phase - 1:
+        set_teams_for_final_phase(self, max_phase, playoff, winner, loser)
+    elif self.object.phase == max_phase:
+        return response
+    else:
+        move_to_next_phase(self, playoff, winner)

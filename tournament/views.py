@@ -253,8 +253,6 @@ class TournamentKickTeamView(UserPassesTestMixin, View):
         return redirect('tournament:tournament_detail', pk)
 
 
-
-
 class MatchDetailView(DetailView):
     model = Match
     template_name = 'tournament/match_detail.html'
@@ -301,20 +299,7 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
         else:
             playoff = Playoff.objects.get(tournament=self.object.tournament)
             max_phase = playoff.matches.aggregate(Max('phase'))['phase__max']
-            if self.object.team1_score == self.object.team2_score:
-                return response
-            elif self.object.team1_score > self.object.team2_score:
-                winner = self.object.team1
-                loser = self.object.team2
-            else:
-                winner = self.object.team2
-                loser = self.object.team1
-            if self.object.phase == max_phase - 1:
-                set_teams_for_final_phase(self, max_phase, playoff, winner, loser)
-            elif self.object.phase == max_phase:
-                return response
-            else:
-                move_to_next_phase(self, playoff, winner)
+            process_match_result(self, playoff, max_phase, self.object.team1_score, self.object.team2_score, response)
         return response
 
     def get_success_url(self):
@@ -335,20 +320,8 @@ class MatchUpdateExtraTimeView(UserPassesTestMixin, UpdateView):
         response = super().form_valid(form)
         playoff = Playoff.objects.get(tournament=self.object.tournament)
         max_phase = playoff.matches.aggregate(Max('phase'))['phase__max']
-        if self.object.team1_extra_time_score == self.object.team2_extra_time_score:
-            return response
-        elif self.object.team1_extra_time_score > self.object.team2_extra_time_score:
-            winner = self.object.team1
-            loser = self.object.team2
-        else:
-            winner = self.object.team2
-            loser = self.object.team1
-        if self.object.phase == max_phase - 1:
-            set_teams_for_final_phase(self, max_phase, playoff, winner, loser)
-        elif self.object.phase == max_phase:
-            return response
-        else:
-            move_to_next_phase(self, playoff, winner)
+        process_match_result(self, playoff, max_phase, self.object.team1_extra_time_score,
+                             self.object.team2_extra_time_score, response)
         return response
 
     def get_success_url(self):
