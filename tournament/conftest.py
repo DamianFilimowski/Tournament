@@ -69,3 +69,11 @@ def playoff(tournaments):
     tournament = tournaments[0]
     playoff = Playoff.objects.create(tournament=tournament)
     return playoff
+
+
+@pytest.fixture
+def users():
+    lst = []
+    for x in range(32):
+        lst.append(CustomUser.objects.create(first_name=x, last_name=x, username=x))
+    return lst

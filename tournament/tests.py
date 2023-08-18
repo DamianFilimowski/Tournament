@@ -1,7 +1,9 @@
 import pytest
+from django.contrib.messages import get_messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import Client
 
+from .forms import SearchPersonForm
 from .models import *
 
 browser = Client()
@@ -133,6 +135,67 @@ def test_team_delete_captain_post(teams, user):
     with pytest.raises(ObjectDoesNotExist):
         Team.objects.get(name=team.name, short_name=team.short_name, captain=team.captain)
     assert response.url.startswith(reverse('accounts:profile'))
+
+
+@pytest.mark.django_db
+def test_team_add_player_get(teams, user):
+    team = teams[0]
+    url = reverse('tournament:team_add_player', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_team_add_player_get_search(teams, user, users):
+    team = teams[0]
+    url = reverse('tournament:team_add_player', kwargs={'pk': team.id})
+    data = {
+        'imie': '1',
+        'nazwisko': '1',
+        'nazwa_uzytkownika': '1'
+    }
+    browser.force_login(user)
+    response = browser.get(url, data)
+    assert response.status_code == 200
+    assert response.context['users'].get(username='1', first_name='1', last_name='1')
+    assert response.context['users'].get(username='11', first_name='11', last_name='11')
+    assert response.context['users'].get(username='21', first_name='21', last_name='21')
+
+
+@pytest.mark.django_db
+def test_team_add_player_get_not_captain(teams, user_not_creator):
+    team = teams[0]
+    url = reverse('tournament:team_add_player', kwargs={'pk': team.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_team_add_player_post(teams, user, users):
+    team = teams[0]
+    player = users[0]
+    url = reverse('tournament:team_add_player', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.post(url, {'user_id': player.id})
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert team.players.get(username=player.username)
+    assert any(f"Zaproszono użytkownika {player.username}" in message.message for message in messages)
+
+
+@pytest.mark.django_db
+def test_team_add_player_post_already_player(teams, user, users):
+    team = teams[0]
+    player = users[0]
+    team.players.add(player)
+    url = reverse('tournament:team_add_player', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.post(url, {'user_id': player.id})
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert any(f"Ten użytkownik już jest w Twojej drużynie" in message.message for message in messages)
 
 
 @pytest.mark.django_db

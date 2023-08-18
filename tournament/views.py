@@ -78,7 +78,7 @@ class TeamDeleteView(UserPassesTestMixin, DeleteView):
         return self.request.user == team.captain
 
 
-class TeamAddPlayer(UserPassesTestMixin, View):
+class TeamAddPlayerView(UserPassesTestMixin, View):
     def test_func(self):
         team = Team.objects.get(pk=self.kwargs['pk'])
         return self.request.user == team.captain
