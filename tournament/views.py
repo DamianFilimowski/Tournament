@@ -1,7 +1,7 @@
 import random
 from django.contrib import messages
 from django.db.models import Count
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
@@ -126,7 +126,8 @@ class TeamJoinView(UserPassesTestMixin, View):
 class TeamKickPlayerView(UserPassesTestMixin, View):
     def test_func(self):
         team = Team.objects.get(pk=self.kwargs['pk'])
-        return self.request.user == team.captain
+        player = get_object_or_404(CustomUser, id=self.kwargs['player'])
+        return self.request.user == team.captain and player in list(team.players.all())
 
     def get(self, request, pk, player):
         team = Team.objects.get(pk=pk)

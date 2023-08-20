@@ -231,6 +231,52 @@ def test_team_join_already_in_team(teams, users):
     response = browser.get(url)
     assert response.status_code == 403
 
+
+@pytest.mark.django_db
+def test_team_kick_player(teams, user, users):
+    team = teams[0]
+    player = users[0]
+    team.players.add(player)
+    url = reverse('tournament:team_kick', kwargs={'pk': team.id, 'player': player.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert not team.players.filter(username=player.username)
+    assert any(f'Usunięto gracza {player.username}' in message.message for message in messages)
+
+
+@pytest.mark.django_db
+def test_team_kick_player_not_captain(teams, users):
+    team = teams[0]
+    player = users[0]
+    team.players.add(player)
+    url = reverse('tournament:team_kick', kwargs={'pk': team.id, 'player': player.id})
+    browser.force_login(player)
+    response = browser.get(url)
+    assert response.status_code == 403
+    assert team.players.filter(username=player.username)
+
+
+@pytest.mark.django_db
+def test_team_kick_player_does_not_exist(teams, user, users):
+    team = teams[0]
+    url = reverse('tournament:team_kick', kwargs={'pk': team.id, 'player': 99})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_team_kick_player_not_in_team(teams, user, users):
+    team = teams[0]
+    player = users[0]
+    url = reverse('tournament:team_kick', kwargs={'pk': team.id, 'player': player.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
 @pytest.mark.django_db
 def test_tournament_list(tournaments):
     url = reverse('tournament:tournament_list')

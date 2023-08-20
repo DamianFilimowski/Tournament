@@ -20,7 +20,9 @@ def user_not_creator():
 def teams(user):
     lst = []
     for x in range(32):
-        lst.append(Team.objects.create(name=x, short_name=x, captain=user))
+        team = Team.objects.create(name=x, short_name=x, captain=user)
+        team.players.add(user)
+        lst.append(team)
     return lst
 
 
