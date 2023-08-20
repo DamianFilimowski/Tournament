@@ -199,6 +199,39 @@ def test_team_add_player_post_already_player(teams, user, users):
 
 
 @pytest.mark.django_db
+def test_team_join_not_logged(teams):
+    team = teams[0]
+    url = reverse('tournament:team_join', kwargs={'pk': team.id})
+    response = browser.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('accounts:login'))
+
+
+@pytest.mark.django_db
+def test_team_join(teams, users):
+    team = teams[0]
+    user = users[0]
+    url = reverse('tournament:team_join', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:team_detail', kwargs={'pk': team.id}))
+    assert any(f"Dołączyłeś do drużyny" in message.message for message in messages)
+    assert team.players.filter(username=user.username, first_name=user.first_name, last_name=user.last_name)
+
+
+@pytest.mark.django_db
+def test_team_join_already_in_team(teams, users):
+    team = teams[0]
+    user = users[0]
+    team.players.add(user)
+    url = reverse('tournament:team_join', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+@pytest.mark.django_db
 def test_tournament_list(tournaments):
     url = reverse('tournament:tournament_list')
     response = browser.get(url)

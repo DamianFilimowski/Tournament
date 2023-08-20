@@ -113,7 +113,7 @@ class TeamAddPlayerView(UserPassesTestMixin, View):
 class TeamJoinView(UserPassesTestMixin, View):
     def test_func(self):
         team = Team.objects.get(pk=self.kwargs['pk'])
-        return self.request.user != team.players and self.request.user.is_authenticated
+        return self.request.user not in list(team.players.all()) and self.request.user.is_authenticated
 
     def get(self, request, pk):
         user = self.request.user
