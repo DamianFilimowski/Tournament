@@ -278,6 +278,39 @@ def test_team_kick_player_not_in_team(teams, user, users):
 
 
 @pytest.mark.django_db
+def test_team_leave_captain(teams, user):
+    team = teams[0]
+    url = reverse('tournament:team_leave', kwargs={'pk': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+    assert team.players.filter(id=user.id)
+
+
+@pytest.mark.django_db
+def test_team_leave(teams, users):
+    team = teams[0]
+    player = users[0]
+    team.players.add(player)
+    url = reverse('tournament:team_leave', kwargs={'pk': team.id})
+    browser.force_login(player)
+    response = browser.get(url)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:team_detail', kwargs={'pk': team.id}))
+    assert not team.players.filter(id=player.id)
+
+
+@pytest.mark.django_db
+def test_team_leave_not_in_team(teams, users):
+    team = teams[0]
+    player = users[0]
+    url = reverse('tournament:team_leave', kwargs={'pk': team.id})
+    browser.force_login(player)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
 def test_tournament_list(tournaments):
     url = reverse('tournament:tournament_list')
     response = browser.get(url)

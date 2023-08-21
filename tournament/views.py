@@ -140,7 +140,8 @@ class TeamKickPlayerView(UserPassesTestMixin, View):
 class TeamLeaveView(UserPassesTestMixin, View):
     def test_func(self):
         team = Team.objects.get(pk=self.kwargs['pk'])
-        return self.request.user in team.players.all() and self.request.user != team.captain
+        return (self.request.user in team.players.all() and self.request.user != team.captain
+                and self.request.user.is_authenticated)
 
     def get(self, request, pk):
         user = self.request.user
@@ -361,6 +362,7 @@ class MatchUpdatePenaltyView(UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('tournament:match_detail', kwargs={'pk': self.object.id})
+
 
 class MatchUpdateDateView(UserPassesTestMixin, UpdateView):
     model = Match
