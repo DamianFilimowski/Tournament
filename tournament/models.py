@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
 from accounts.models import CustomUser
@@ -23,7 +24,7 @@ class Tournament(models.Model):
 
     tournament_admin = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    max_teams_amount = models.IntegerField()
+    max_teams_amount = models.IntegerField(validators=[MinValueValidator(8)])
     teams = models.ManyToManyField(Team, blank=True)
     phases_drawn = models.BooleanField(default=False)
 

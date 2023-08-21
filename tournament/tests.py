@@ -3,7 +3,6 @@ from django.contrib.messages import get_messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import Client
 
-from .forms import SearchPersonForm
 from .models import *
 
 browser = Client()
@@ -50,7 +49,7 @@ def test_team_create_logged_too_long_name_short(user):
     browser.force_login(user)
     response = browser.post(url, data)
     assert response.status_code == 200
-    with pytest.raises(Team.DoesNotExist):
+    with pytest.raises(ObjectDoesNotExist):
         Team.objects.get(short_name='babasasasasa')
 
 
@@ -319,26 +318,51 @@ def test_tournament_list(tournaments):
 
 
 @pytest.mark.django_db
+def test_tournament_create(user):
+    browser.force_login(user)
+    url = reverse('tournament:tournament_create')
+    name = 'test_tournament'
+    max_teams = 16
+    data = {
+        'name': name,
+        'max_teams_amount': max_teams
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    assert Tournament.objects.get(name=name, max_teams_amount=max_teams)
+    assert response.url.startswith(reverse('tournament:tournament_list'))
+
+
+@pytest.mark.django_db
+def test_tournament_create_not_enough_teams(user):
+    browser.force_login(user)
+    url = reverse('tournament:tournament_create')
+    name = 'test_tournament'
+    max_teams = 7
+    data = {
+        'name': name,
+        'max_teams_amount': max_teams
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 200
+    with pytest.raises(ObjectDoesNotExist):
+        Tournament.objects.get(name=name, max_teams_amount=max_teams)
+
+
+@pytest.mark.django_db
+def test_tournament_create_not_logged(user):
+    url = reverse('tournament:tournament_create')
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
 def test_tournament_detail(tournaments):
     tournament = tournaments[0]
     url = reverse('tournament:tournament_detail', kwargs={'pk': tournament.id})
     response = browser.get(url)
     assert response.status_code == 200
     assert response.context['object'] == tournament
-
-
-@pytest.mark.django_db
-def test_tournament_create_logged(user):
-    url = reverse('tournament:tournament_create')
-    data = {
-        'name': 'asd',
-        'max_teams_amount': 5,
-    }
-    browser.force_login(user)
-    response = browser.post(url, data)
-    assert response.status_code == 302
-    assert response.url.startswith(reverse('tournament:tournament_list'))
-    assert Tournament.objects.get(**data)
 
 
 @pytest.mark.django_db
@@ -373,7 +397,7 @@ def test_tournament_update_creator_post(tournaments, user):
     browser.force_login(user)
     data = {
         'name': 'asdas',
-        'max_teams_amount': 4
+        'max_teams_amount': 9
     }
     response = browser.post(url, data)
     assert response.status_code == 302
