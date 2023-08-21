@@ -350,7 +350,7 @@ def test_tournament_create_not_enough_teams(user):
 
 
 @pytest.mark.django_db
-def test_tournament_create_not_logged(user):
+def test_tournament_create_not_logged():
     url = reverse('tournament:tournament_create')
     response = browser.get(url)
     assert response.status_code == 403
@@ -363,13 +363,6 @@ def test_tournament_detail(tournaments):
     response = browser.get(url)
     assert response.status_code == 200
     assert response.context['object'] == tournament
-
-
-@pytest.mark.django_db
-def test_tournament_create_not_logged():
-    url = reverse('tournament:tournament_create')
-    response = browser.get(url)
-    assert response.status_code == 302
 
 
 @pytest.mark.django_db
@@ -434,6 +427,89 @@ def test_tournament_delete_creator_post(tournaments, user):
         Tournament.objects.get(name=tournament.name, max_teams_amount=tournament.max_teams_amount,
                                tournament_admin=tournament.tournament_admin)
     assert response.url.startswith(reverse('accounts:profile'))
+
+
+@pytest.mark.django_db
+def test_tournament_add_team(tournaments, teams, user):
+    tournament = tournaments[0]
+    team = teams[0]
+    url = reverse('tournament:tournament_add_team', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    data = {'id': team.id}
+    response = browser.post(url, data)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert tournament.teams.filter(id=team.id)
+    assert any(f"Drużyna {team.name} została dodana" in message.message for message in messages)
+
+
+@pytest.mark.django_db
+def test_tournament_add_team_already_in_tournament(tournaments, teams, user):
+    tournament = tournaments[0]
+    team = teams[0]
+    tournament.teams.add(team)
+    url = reverse('tournament:tournament_add_team', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    data = {'id': team.id}
+    response = browser.post(url, data)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert any(f'Ta drużyna jest juz w tym turnieju' in message.message for message in messages)
+
+
+@pytest.mark.django_db
+def test_tournament_add_team_player_already_in_tournament(tournaments, teams, user):
+    tournament = tournaments[0]
+    team = teams[0]
+    tournament.teams.add(team)
+    team2 = teams[1]
+    url = reverse('tournament:tournament_add_team', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    data = {'id': team2.id}
+    response = browser.post(url, data)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert any(f'Zawodnik drużyny {team2.name} juz gra w tym turnieju' in message.message for message in messages)
+    assert not tournament.teams.filter(id=team2.id)
+
+
+@pytest.mark.django_db
+def test_tournament_add_team_last_one(tournaments, teams, user):
+    tournament = tournaments[0]
+    for i in range(1, 8):
+        team = teams[i]
+        team.players.remove(user)
+        tournament.teams.add(team)
+    tournament.max_teams_amount = 8
+    tournament.save()
+    url = reverse('tournament:tournament_add_team', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    team = teams[0]
+    data = {'id': team.id}
+    response = browser.post(url, data)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert any(f"Osiągnięto maksymalną ilość drużyn" in message.message for message in messages)
+    assert tournament.teams.filter(id=team.id)
+
+
+@pytest.mark.django_db
+def test_tournament_add_team_over_max(tournaments, teams, user):
+    tournament = tournaments[0]
+    for i in range(1, 9):
+        team = teams[i]
+        team.players.remove(user)
+        tournament.teams.add(team)
+    tournament.max_teams_amount = 8
+    tournament.save()
+    url = reverse('tournament:tournament_add_team', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    team = teams[0]
+    data = {'id': team.id}
+    response = browser.post(url, data)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 403
+    assert not tournament.teams.filter(id=team.id)
 
 
 @pytest.mark.django_db

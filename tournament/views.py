@@ -231,7 +231,7 @@ class TournamentAddTeamView(UserPassesTestMixin, View):
             messages.success(request, "Ta drużyna jest juz w tym turnieju")
             return redirect('tournament:tournament_add_team', pk)
         if if_player_in_tournament(tournament, team):
-            messages.success(request, f"Zawodnik drużyny '{team.name}' juz gra w tym turnieju")
+            messages.success(request, f'Zawodnik drużyny {team.name} juz gra w tym turnieju')
             return redirect('tournament:tournament_add_team', pk)
         tournament.teams.add(team)
         tournament_teams = len(list(tournament.teams.all()))

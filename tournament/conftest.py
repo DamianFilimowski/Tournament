@@ -30,7 +30,7 @@ def teams(user):
 def tournaments(user):
     lst = []
     for x in range(5):
-        lst.append(Tournament.objects.create(name=x, max_teams_amount=x, tournament_admin=user))
+        lst.append(Tournament.objects.create(name=x, max_teams_amount=x+8, tournament_admin=user))
     return lst
 
 
