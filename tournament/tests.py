@@ -353,7 +353,8 @@ def test_tournament_create_not_enough_teams(user):
 def test_tournament_create_not_logged():
     url = reverse('tournament:tournament_create')
     response = browser.get(url)
-    assert response.status_code == 403
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('accounts:login'))
 
 
 @pytest.mark.django_db
@@ -507,9 +508,54 @@ def test_tournament_add_team_over_max(tournaments, teams, user):
     team = teams[0]
     data = {'id': team.id}
     response = browser.post(url, data)
-    messages = get_messages(response.wsgi_request)
     assert response.status_code == 403
     assert not tournament.teams.filter(id=team.id)
+
+
+@pytest.mark.django_db
+def test_tournament_kick_team(user, tournaments, teams):
+    tournament = tournaments[0]
+    team = teams[0]
+    tournament.teams.add(team)
+    url = reverse('tournament:tournament_kick_team', kwargs={'pk': tournament.id, 'team': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    messages = get_messages(response.wsgi_request)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk':tournament.id}))
+    assert not tournament.teams.filter(id=team.id)
+    assert any(f"Druzyna {team.name} została usunięta z turnieju" in message.message for message in messages)
+
+
+@pytest.mark.django_db
+def test_tournament_kick_team_not_admin(user_not_creator, tournaments, teams):
+    tournament = tournaments[0]
+    team = teams[0]
+    tournament.teams.add(team)
+    url = reverse('tournament:tournament_kick_team', kwargs={'pk': tournament.id, 'team': team.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+    assert tournament.teams.filter(id=team.id)
+
+
+@pytest.mark.django_db
+def test_tournament_kick_team_not_in_tournament(user, tournaments, teams):
+    tournament = tournaments[0]
+    team = teams[0]
+    url = reverse('tournament:tournament_kick_team', kwargs={'pk': tournament.id, 'team': team.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_kick_team_doesnt_exist(user, tournaments, teams):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_kick_team', kwargs={'pk': tournament.id, 'team': 555})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db

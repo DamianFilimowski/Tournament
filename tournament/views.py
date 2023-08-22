@@ -244,8 +244,9 @@ class TournamentAddTeamView(UserPassesTestMixin, View):
 
 class TournamentKickTeamView(UserPassesTestMixin, View):
     def test_func(self):
-        tournament = Tournament.objects.get(id=self.kwargs['pk'])
-        return self.request.user == tournament.tournament_admin
+        tournament = get_object_or_404(Tournament, id=self.kwargs['pk'])
+        team = get_object_or_404(Team, id=self.kwargs['team'])
+        return self.request.user == tournament.tournament_admin and team in tournament.teams.all()
 
     def get(self, request, pk, team):
         tournament = Tournament.objects.get(id=pk)
