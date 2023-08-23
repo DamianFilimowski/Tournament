@@ -671,6 +671,8 @@ def test_scorers_delete_creator(scorers, user):
     url = reverse('tournament:match_delete_scorers', kwargs={'pk': scorer.id})
     browser.force_login(user)
     response = browser.post(url)
+    user = CustomUser.objects.get(id=user.id)
+    assert user.goals == -1
     assert response.status_code == 302
     with pytest.raises(ObjectDoesNotExist):
         Scorers.objects.get(match=scorer.match, scorer=scorer.scorer, minute=scorer.minute)
