@@ -637,19 +637,22 @@ def test_match_update_scorers_not_creator(matches, user_not_creator):
     assert response.status_code == 403
 
 
-# @pytest.mark.django_db
-# def test_match_update_scorers_creator(matches, user):
-#     match = matches[0]
-#     url = reverse('tournament:match_update_scorers', kwargs={'pk': match.id})
-#     browser.force_login(user)
-#     data = {
-#         'scorer': user.id,
-#         'minute': 5
-#     }
-#     response = browser.post(url, data)
-#     assert response.status_code == 302
-#     assert Scorers.objects.get(**data)
-#     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+@pytest.mark.django_db
+def test_match_update_scorers_creator(matches, user):
+    match = matches[0]
+    url = reverse('tournament:match_update_scorers', kwargs={'pk': match.id})
+    browser.force_login(user)
+    match.team2.players.remove(user)
+    data = {
+        'scorer': user.id,
+        'minute': 5
+    }
+    response = browser.post(url, data)
+    user = CustomUser.objects.get(id=user.id)
+    assert response.status_code == 302
+    assert Scorers.objects.get(**data)
+    assert user.goals == 1
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
 
 
 @pytest.mark.django_db
