@@ -444,7 +444,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             number_playoff_matches = get_number_playoff_matches(total_teams)
             groups = create_group_stages(number_playoff_matches // 2, tournament)
             random.shuffle(teams)
-            groups = add_teams_to_groups(groups, teams)
+            groups, teams = add_teams_to_groups(groups, teams)
             for group in groups:
                 create_group_matches(group)
             playoff = Playoff.objects.create(tournament=tournament)
@@ -460,7 +460,7 @@ class TournamentCreateGroupsPlayoff(UserPassesTestMixin, View):
             number_playoff_matches = get_number_playoff_matches(total_teams)
             groups = create_group_stages(number_playoff_matches//2, tournament)
             random.shuffle(teams)
-            groups = add_teams_to_groups(groups, teams)
+            groups, teams = add_teams_to_groups(groups, teams)
             list_groups = list(groups)
             for i, team in enumerate(teams):
                 group_index = i % len(list_groups)

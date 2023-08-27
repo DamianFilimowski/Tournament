@@ -23,7 +23,7 @@ def add_teams_to_groups(groups, teams):
         group_teams = teams[:4]
         group.teams.add(*group_teams)
         teams = teams[4:]
-    return groups
+    return groups, teams
 
 
 def create_group_matches(group):

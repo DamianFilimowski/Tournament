@@ -727,6 +727,27 @@ def test_tournament_create_groups_playoff_seven_teams(tournaments, teams, user):
 
 
 @pytest.mark.django_db
+def test_tournament_create_groups_playoff_eleven_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:11])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    group1 = tournament.groupstage_set.get(order=1, name='Grupa a')
+    group2 = tournament.groupstage_set.get(order=2, name='Grupa b')
+    assert group1.teams.count() == 6
+    assert group1.matches.count() == 15
+    assert group2.teams.count() == 5
+    assert group2.matches.count() == 10
+    assert response.status_code == 302
+    assert tournament.groupstage_set.count() == 2
+    assert tournament.match_set.count() == 29
+    assert tournament.playoff.matches.count() == 4
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+@pytest.mark.django_db
 def test_group_stage_detail(groups):
     group = groups[0]
     url = reverse('tournament:groupstage_detail', kwargs={'pk': group.id})
