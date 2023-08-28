@@ -700,21 +700,6 @@ def test_tournament_create_groups_playoff_phases_drawn(tournaments, user):
 
 
 @pytest.mark.django_db
-def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
-    tournament = tournaments[0]
-    teams = list(teams[:8])
-    tournament.teams.add(*teams)
-    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
-    browser.force_login(user)
-    response = browser.get(url)
-    assert response.status_code == 302
-    assert tournament.groupstage_set.count() == 2
-    assert tournament.match_set.count() == 16
-    assert tournament.playoff.matches.count() == 4
-    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
-
-
-@pytest.mark.django_db
 def test_tournament_create_groups_playoff_seven_teams(tournaments, teams, user):
     tournament = tournaments[0]
     teams = list(teams[:7])
@@ -723,7 +708,32 @@ def test_tournament_create_groups_playoff_seven_teams(tournaments, teams, user):
     browser.force_login(user)
     response = browser.get(url)
     assert response.status_code == 200
+    with pytest.raises(ObjectDoesNotExist):
+        Playoff.objects.get(tournament=tournament)
     assert response.context['message'] == 'Aby rozpocząć turniej z fazą grupową musi byc przynajmniej 8 drużyn'
+
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_eight_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:8])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    group1 = tournament.groupstage_set.get(order=1, name='Grupa a')
+    group2 = tournament.groupstage_set.get(order=2, name='Grupa b')
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    assert match.phase_name == 'Półfinał'
+    assert group1.teams.count() == 4
+    assert group1.matches.count() == 6
+    assert group2.teams.count() == 4
+    assert group2.matches.count() == 6
+    assert response.status_code == 302
+    assert tournament.groupstage_set.count() == 2
+    assert tournament.match_set.count() == 16
+    assert tournament.playoff.matches.count() == 4
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
 
 
 @pytest.mark.django_db
@@ -769,6 +779,111 @@ def test_tournament_create_groups_playoff_eighteen_teams(tournaments, teams, use
     assert tournament.groupstage_set.count() == 4
     assert tournament.match_set.count() == 40
     assert tournament.playoff.matches.count() == 8
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_not_creator(tournaments, user_not_creator):
+    tournament = tournaments[0]
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user_not_creator)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_phases_drawn(tournaments, user):
+    tournament = tournaments[0]
+    tournament.phases_drawn = True
+    tournament.save()
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_seven_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:7])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    with pytest.raises(ObjectDoesNotExist):
+        Playoff.objects.get(tournament=tournament)
+    assert response.status_code == 200
+    assert response.context['message'] == 'Aby rozpocząć turniej musi byc przynajmniej 8 drużyn'
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_eight_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:8])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    assert match.phase_name == 'Ćwierćfinał'
+    assert response.status_code == 302
+    assert tournament.playoff.matches.count() == 8
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+def check_number_auto_promoted_teams(playoff):
+    matches = playoff.matches.filter(phase=1)
+    qty = 0
+    for match in matches:
+        if match.team2 is None:
+            qty += 1
+    return qty
+
+
+def check_if_teams_promoted_correctly(playoff):
+    matches = playoff.matches.filter(phase=2)
+    qty = matches.count() * 2
+    for match in matches:
+        if match.team1 is None:
+            qty -= 1
+        if match.team2 is None:
+            qty -= 1
+    return qty
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_eleven_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:11])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    playoff = Playoff.objects.get(tournament=tournament)
+    assert check_number_auto_promoted_teams(playoff) == 5
+    assert check_if_teams_promoted_correctly(playoff) == 5
+    assert match.phase_name == '1/8 finału'
+    assert response.status_code == 302
+    assert tournament.playoff.matches.count() == 16
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+@pytest.mark.django_db
+def test_tournament_create_playoff_eighteen_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:18])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    playoff = Playoff.objects.get(tournament=tournament)
+    assert check_number_auto_promoted_teams(playoff) == 14
+    assert check_if_teams_promoted_correctly(playoff) == 14
+    assert match.phase_name == '1/16 finału'
+    assert response.status_code == 302
+    assert tournament.playoff.matches.count() == 32
     assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
 
 
