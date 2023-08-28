@@ -736,6 +736,8 @@ def test_tournament_create_groups_playoff_eleven_teams(tournaments, teams, user)
     response = browser.get(url)
     group1 = tournament.groupstage_set.get(order=1, name='Grupa a')
     group2 = tournament.groupstage_set.get(order=2, name='Grupa b')
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    assert match.phase_name == 'Półfinał'
     assert group1.teams.count() == 6
     assert group1.matches.count() == 15
     assert group2.teams.count() == 5
@@ -744,6 +746,29 @@ def test_tournament_create_groups_playoff_eleven_teams(tournaments, teams, user)
     assert tournament.groupstage_set.count() == 2
     assert tournament.match_set.count() == 29
     assert tournament.playoff.matches.count() == 4
+    assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
+
+
+@pytest.mark.django_db
+def test_tournament_create_groups_playoff_eighteen_teams(tournaments, teams, user):
+    tournament = tournaments[0]
+    teams = list(teams[:18])
+    tournament.teams.add(*teams)
+    url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    group1 = tournament.groupstage_set.get(order=1, name='Grupa a')
+    group2 = tournament.groupstage_set.get(order=4, name='Grupa d')
+    match = tournament.playoff.matches.get(phase=1, order=1)
+    assert match.phase_name == 'Ćwierćfinał'
+    assert group1.teams.count() == 5
+    assert group1.matches.count() == 10
+    assert group2.teams.count() == 4
+    assert group2.matches.count() == 6
+    assert response.status_code == 302
+    assert tournament.groupstage_set.count() == 4
+    assert tournament.match_set.count() == 40
+    assert tournament.playoff.matches.count() == 8
     assert response.url.startswith(reverse('tournament:tournament_detail', kwargs={'pk': tournament.id}))
 
 
