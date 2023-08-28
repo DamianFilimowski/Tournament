@@ -905,6 +905,13 @@ def test_playoff_detail(playoff):
 
 
 @pytest.mark.django_db
+def test_playoff_detail_not_exist():
+    url = reverse('tournament:playoff_detail', kwargs={'pk': 1})
+    response = browser.get(url)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_tournament_start(tournaments):
     tournament = tournaments[0]
     url = reverse('tournament:tournament_start', kwargs={'pk': tournament.id})

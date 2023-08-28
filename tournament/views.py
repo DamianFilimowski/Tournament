@@ -543,6 +543,9 @@ class PlayoffDetailView(DetailView):
     model = Playoff
     template_name = 'tournament/playoff_detail.html'
 
+    def get_object(self, queryset=None):
+        return get_object_or_404(Playoff, pk=self.kwargs['pk'])
+
 
 class TournamentStart(View):
     def test_func(self):
