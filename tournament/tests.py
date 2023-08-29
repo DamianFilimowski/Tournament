@@ -934,6 +934,7 @@ def test_tournament_create_playoff_creator(tournaments, teams, user):
     playoff_next_phase = playoff.matches.filter(phase=2)
     have_t1 = playoff_next_phase.filter(team1__isnull=False)
     have_t2 = playoff_next_phase.filter(team2__isnull=False)
+    assert playoff.matches.count() == 16
     assert len(have_t1) + len(have_t2) == 2
     assert len(playoff_none_team1) == 0
     assert len(playoff_none_team2) == 2
@@ -979,3 +980,24 @@ def test_tournament_join_phases_drawn(tournaments, user):
     browser.force_login(user)
     response = browser.get(url)
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_tournament_scorers_view(tournaments, matches, user):
+    tournament = tournaments[0]
+    match = matches[0]
+    match.tournament = tournament
+    match.team1.players.remove(user)
+    match.save()
+    add_scorer_url = reverse('tournament:match_update_scorers', kwargs={'pk': match.id })
+    data = {
+        'scorer': user.id,
+        'minute': 5
+    }
+    browser.force_login(user)
+    browser.post(add_scorer_url, data)
+    url = reverse('tournament:tournament_top_scorers', kwargs={'pk': tournament.id})
+    response = browser.get(url)
+    assert response.status_code == 200
+    assert len(list(response.context['scorers'])) == 1
+    assert response.context['scorers'][0] == user
