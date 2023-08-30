@@ -264,11 +264,11 @@ class MatchDetailView(DetailView):
 class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
     model = Match
     template_name = 'tournament/form.html'
-    fields = ['team1_score', 'team2_score']
+    form_class = MatchUpdateResultForm
 
     def test_func(self):
         match = self.get_object()
-        return self.request.user == match.tournament.tournament_admin
+        return self.request.user == match.tournament.tournament_admin and match.team1_score is None
 
     def form_valid(self, form):
         response = super().form_valid(form)

@@ -598,6 +598,93 @@ def test_match_update_result_creator(matches, user, groups):
     assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
 
 
+def if_team_in_playoff(team, playoff, phase):
+    matches = playoff.matches.all().filter(phase=phase)
+    for match in matches:
+        if team == match.team1 or team == match.team2:
+            return False
+    return True
+
+
+@pytest.mark.django_db
+def test_match_update_result_group_stage(user, tournaments, teams):
+    teams = teams[:8]
+    for team in teams:
+        team.players.remove(user)
+    tournament = tournaments[0]
+    tournament.teams.add(*teams)
+    browser.force_login(user)
+    start_tournament_url = reverse('tournament:tournament_create_groups_playoff', kwargs={'pk': tournament.id})
+    browser.get(start_tournament_url)
+    group = tournament.groupstage_set.first()
+    teams = group.teams.all()
+    team1 = teams[0]
+    team2 = teams[1]
+    matches = group.matches.all()
+    for match in matches:
+        url = reverse('tournament:match_update_result', kwargs={'pk': match.id})
+        data = {
+            'team1_score': 1,
+            'team2_score': 0
+        }
+        response = browser.post(url, data)
+        assert response.status_code == 302
+        assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+    promoted_teams = group.promoted_teams.all()
+    assert if_team_in_playoff(teams[2], tournament.playoff, 1)
+    assert if_team_in_playoff(teams[3], tournament.playoff, 1)
+    assert promoted_teams[0] == team1
+    assert promoted_teams[1] == team2
+    assert tournament.playoff.matches.get(phase=1, order=1).team1 == team1
+    assert tournament.playoff.matches.get(phase=1, order=2).team2 == team2
+
+
+@pytest.mark.django_db
+def test_match_update_result_playoff(user, tournaments, teams):
+    teams = teams[:8]
+    for team in teams:
+        team.players.remove(user)
+    tournament = tournaments[0]
+    tournament.teams.add(*teams)
+    browser.force_login(user)
+    start_tournament_url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.get(start_tournament_url)
+    quaterfinal_match_1 = tournament.match_set.get(phase=1, order=1)
+    team1 = quaterfinal_match_1.team1
+    team2 = quaterfinal_match_1.team2
+    url = reverse('tournament:match_update_result', kwargs={'pk': quaterfinal_match_1.id})
+    data = {
+        'team1_score': 1,
+        'team2_score': 0
+    }
+    response = browser.post(url, data)
+    quaterfinal_match2 = tournament.match_set.get(phase=1, order=2)
+    team3 = quaterfinal_match2.team1
+    url2 = reverse('tournament:match_update_result', kwargs={'pk': quaterfinal_match2.id})
+    browser.post(url2, data)
+    semi_final_match = tournament.match_set.get(phase=2, order=1)
+    url_semi_final = reverse('tournament:match_update_result', kwargs={'pk': semi_final_match.id})
+    browser.post(url_semi_final, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': quaterfinal_match_1.id}))
+    assert if_team_in_playoff(team2, tournament.playoff, 2)
+    assert tournament.playoff.matches.get(phase=2, order=1).team1 == team1
+    assert tournament.playoff.matches.get(phase=3, order=2).team1 == team1
+    assert tournament.playoff.matches.get(phase=3, order=1).team1 == team3
+
+
+@pytest.mark.django_db
+def test_match_update_result_has_result(matches, user):
+    match = matches[0]
+    match.team1_score = 1
+    match.team2_score = 2
+    match.save()
+    url = reverse('tournament:match_update_result', kwargs={'pk': match.id})
+    browser.force_login(user)
+    response = browser.get(url)
+    assert response.status_code == 403
+
+
 @pytest.mark.django_db
 def test_match_update_date_not_creator(matches, user_not_creator):
     match = matches[0]
