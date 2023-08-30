@@ -268,7 +268,8 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         match = self.get_object()
-        return self.request.user == match.tournament.tournament_admin and match.team1_score is None
+        return (self.request.user == match.tournament.tournament_admin and match.team1_score is None
+                and match.team1 and match.team2)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -312,12 +313,13 @@ class MatchUpdateResultView(UserPassesTestMixin, UpdateView):
 class MatchUpdateExtraTimeView(UserPassesTestMixin, UpdateView):
     model = Match
     template_name = 'tournament/form.html'
-    fields = ['team1_extra_time_score', 'team2_extra_time_score']
+    form_class = MatchUpdateExtraTimeForm
 
     def test_func(self):
         match = self.get_object()
         return (self.request.user == match.tournament.tournament_admin and match.team1_score == match.team2_score
-                and match.team1_score is not None and match.team1_extra_time_score is None)
+                and match.team1_score is not None and match.team1_extra_time_score is None
+                and not match.is_group)
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -334,12 +336,13 @@ class MatchUpdateExtraTimeView(UserPassesTestMixin, UpdateView):
 class MatchUpdatePenaltyView(UserPassesTestMixin, UpdateView):
     model = Match
     template_name = 'tournament/form.html'
-    fields = ['team1_penalty_score', 'team2_penalty_score']
+    form_class = MatchUpdatePenaltyForm
 
     def test_func(self):
         match = self.get_object()
         return (self.request.user == match.tournament.tournament_admin and match.team1_score == match.team2_score
-                and match.team1_score and match.team1_extra_time_score is not None and match.team1_penalty_score is None)
+                and match.team1_score is not None and match.team1_extra_time_score is not None
+                and match.team1_penalty_score is None and not match.is_group)
 
     def form_valid(self, form):
         response = super().form_valid(form)

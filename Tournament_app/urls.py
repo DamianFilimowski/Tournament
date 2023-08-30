@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from tournament.views import TournamentListView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('tournaments/', include('tournament.urls')),
+    path('', TournamentListView.as_view(), name='tournament_list'),
 ]

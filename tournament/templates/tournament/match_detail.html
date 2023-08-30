@@ -19,7 +19,7 @@
         {% endif %}
     {% else %}
         Mecz nie został jeszcze rozegrany
-        {% if user == match.tournament.tournament_admin %}
+        {% if user == match.tournament.tournament_admin and match.team1 and match.team2 %}
             <div class="my-button-container"><button class="my-button-start">
    <a href="{% url 'tournament:match_update_result' match.id %}">Dodaj wynik</a>
             </button> </div>

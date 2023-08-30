@@ -674,6 +674,10 @@ def test_match_update_result_playoff(user, tournaments, teams):
 
 
 @pytest.mark.django_db
+def test_match_update_extra_time_view(user, tournaments, teams):
+    tournament = tournaments[0]
+
+@pytest.mark.django_db
 def test_match_update_result_has_result(matches, user):
     match = matches[0]
     match.team1_score = 1

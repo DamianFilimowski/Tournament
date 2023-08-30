@@ -29,3 +29,34 @@ class MatchUpdateResultForm(forms.ModelForm):
 
         return cleaned_data
 
+
+class MatchUpdateExtraTimeForm(forms.ModelForm):
+    class Meta:
+        model = Match
+        fields = ['team1_extra_time_score', 'team2_extra_time_score']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        team1_score = cleaned_data.get('team1_extra_time_score')
+        team2_score = cleaned_data.get('team2_extra_time_score')
+
+        if team1_score is None or team2_score is None:
+            raise forms.ValidationError("Podaj wynik dla każdej drużyny")
+
+        return cleaned_data
+
+
+class MatchUpdatePenaltyForm(forms.ModelForm):
+    class Meta:
+        model = Match
+        fields = ['team1_penalty_score', 'team2_penalty_score']
+
+    def clean(self):
+        cleaned_data = super().clean()
+        team1_score = cleaned_data.get('team1_penalty_score')
+        team2_score = cleaned_data.get('team2_penalty_score')
+
+        if team1_score is None or team2_score is None:
+            raise forms.ValidationError("Podaj wynik dla każdej drużyny")
+
+        return cleaned_data
