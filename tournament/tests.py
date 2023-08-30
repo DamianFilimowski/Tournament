@@ -674,10 +674,6 @@ def test_match_update_result_playoff(user, tournaments, teams):
 
 
 @pytest.mark.django_db
-def test_match_update_extra_time_view(user, tournaments, teams):
-    tournament = tournaments[0]
-
-@pytest.mark.django_db
 def test_match_update_result_has_result(matches, user):
     match = matches[0]
     match.team1_score = 1
@@ -687,6 +683,26 @@ def test_match_update_result_has_result(matches, user):
     browser.force_login(user)
     response = browser.get(url)
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_match_update_extra_time_group_stage(user, tournaments, matches):
+    tournament = tournaments[0]
+    match = matches[0]
+    match.tournament = tournament
+    match.team1_score = 1
+    match.team2_score = 1
+    match.is_group = True
+    match.save()
+    browser.force_login(user)
+    url = reverse('tournament:match_update_extra_time', kwargs={'pk': match.id})
+    data = {
+        'team1_extra_time_score': 1,
+        'team2_extra_time_score': 0
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+    assert match.team1_extra_time_score is None
 
 
 @pytest.mark.django_db
