@@ -706,6 +706,102 @@ def test_match_update_extra_time_group_stage(user, tournaments, matches):
 
 
 @pytest.mark.django_db
+def test_match_update_extra_time_no_result(user, tournaments, matches):
+    tournament = tournaments[0]
+    match = matches[0]
+    match.tournament = tournament
+    match.is_group = True
+    match.save()
+    browser.force_login(user)
+    url = reverse('tournament:match_update_extra_time', kwargs={'pk': match.id})
+    data = {
+        'team1_extra_time_score': 1,
+        'team2_extra_time_score': 0
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+    assert match.team1_extra_time_score is None
+
+
+@pytest.mark.django_db
+def test_match_update_extra_time_not_admin(user_not_creator, tournaments, matches):
+    tournament = tournaments[0]
+    match = matches[0]
+    match.tournament = tournament
+    match.is_group = True
+    match.team1_score = 1
+    match.team2_score = 1
+    match.save()
+    browser.force_login(user_not_creator)
+    url = reverse('tournament:match_update_extra_time', kwargs={'pk': match.id})
+    data = {
+        'team1_extra_time_score': 1,
+        'team2_extra_time_score': 0
+    }
+    response = browser.post(url, data)
+    assert response.status_code == 403
+    assert match.team1_extra_time_score is None
+
+
+@pytest.mark.django_db
+def test_match_update_extra_time_playoff_draw(user, tournaments, teams):
+    tournament = tournaments[0]
+    teams = teams[:8]
+    for team in teams:
+        team.players.remove(user)
+    tournament.teams.add(*teams)
+    browser.force_login(user)
+    create_playoff_url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.get(create_playoff_url)
+    match = Match.objects.get(tournament=tournament, phase=1, order=1)
+    match.team1_score = 1
+    match.team2_score = 1
+    match.save()
+    url = reverse('tournament:match_update_extra_time', kwargs={'pk': match.id})
+    data = {
+        'team1_extra_time_score': 1,
+        'team2_extra_time_score': 1
+    }
+    team1 = match.team1
+    team2 = match.team2
+    playoff = Playoff.objects.get(tournament=tournament)
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+    assert if_team_in_playoff(team1, playoff, 2)
+    assert if_team_in_playoff(team2, playoff, 2)
+
+
+@pytest.mark.django_db
+def test_match_update_extra_time_playoff(user, tournaments, teams):
+    tournament = tournaments[0]
+    teams = teams[:8]
+    for team in teams:
+        team.players.remove(user)
+    tournament.teams.add(*teams)
+    browser.force_login(user)
+    create_playoff_url = reverse('tournament:tournament_create_playoff', kwargs={'pk': tournament.id})
+    browser.get(create_playoff_url)
+    match = Match.objects.get(tournament=tournament, phase=1, order=1)
+    match.team1_score = 1
+    match.team2_score = 1
+    match.save()
+    url = reverse('tournament:match_update_extra_time', kwargs={'pk': match.id})
+    data = {
+        'team1_extra_time_score': 1,
+        'team2_extra_time_score': 0
+    }
+    team1 = match.team1
+    team2 = match.team2
+    playoff = Playoff.objects.get(tournament=tournament)
+    response = browser.post(url, data)
+    assert response.status_code == 302
+    assert response.url.startswith(reverse('tournament:match_detail', kwargs={'pk': match.id}))
+    assert not if_team_in_playoff(team1, playoff, 2)
+    assert if_team_in_playoff(team2, playoff, 2)
+
+
+@pytest.mark.django_db
 def test_match_update_date_not_creator(matches, user_not_creator):
     match = matches[0]
     url = reverse('tournament:match_update_date', kwargs={'pk': match.id})
